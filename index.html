@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Amorino's PHIL1013 Exam Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* stone, parchment and papyrus, with ochre and pastel pigments */
+  --bg:#ebe6dc; --panel:#f8f4ec; --ink:#3b3630; --muted:#857d71; --line:#d9d1c3;
+  --accent:#d9b44a; --accent-ink:#3b3630; --accent-soft:#f6ebc6;
+  --good:#8fae8b; --good-soft:#e3ecdd; --bad:#c98f86; --bad-soft:#f3e0dc;
+  --sky:#b9cbd6; --lav:#cfc4dc; --stone:#a9a297;
+  --shadow:0 1px 2px rgba(60,50,35,.05),0 6px 18px rgba(60,50,35,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#24221f;--panel:#2e2b27;--ink:#ece4d4;--muted:#a89e8e;--line:#423d36;--accent:#e2c264;--accent-ink:#2a2723;--accent-soft:#3d3524;--good:#9dbb98;--good-soft:#2c3529;--bad:#d29a91;--bad-soft:#3b2b28;--sky:#7f95a3;--lav:#958aa6;--stone:#6f685f;--shadow:none}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif;
+  background-image:radial-gradient(rgba(120,105,80,.06) 1px,transparent 1px);background-size:18px 18px}
+header{max-width:960px;margin:0 auto;padding:28px 20px 8px}
+header::after{content:"";display:block;height:10px;margin-top:16px;opacity:.55;
+  background:repeating-linear-gradient(90deg,var(--stone) 0 2px,transparent 2px 12px),linear-gradient(var(--stone),var(--stone));
+  background-size:12px 10px,100% 2px;background-repeat:repeat-x,no-repeat;background-position:0 0,0 100%}
+h1::before{content:"\0391 \039B \0397 \0398 \0395 \0399 \0391";display:block;font-family:Fraunces,Georgia,serif;font-size:12px;letter-spacing:.35em;color:var(--accent);margin-bottom:6px;font-weight:500}
+h1{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:30px;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0}
+nav{max-width:960px;margin:16px auto 0;padding:0 20px;display:flex;gap:6px;flex-wrap:wrap}
+nav button{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:9px 16px;border-radius:999px;font:inherit;font-weight:500;cursor:pointer}
+nav button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+main{max-width:960px;margin:0 auto;padding:18px 20px 60px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 16px}
+.chip{border:1px solid var(--line);background:transparent;color:var(--ink);padding:6px 12px;border-radius:999px;font:inherit;font-size:13px;cursor:pointer}
+.chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.btn{border:0;background:var(--accent);color:var(--accent-ink);padding:10px 18px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.good{background:var(--good);color:var(--accent-ink)}
+.btn.bad{background:var(--bad);color:var(--accent-ink)}
+.chip.on{color:var(--ink)!important}
+.chips .chip:nth-child(3n+2).on{background:#e8eff3;border-color:var(--sky)}
+.chips .chip:nth-child(3n).on{background:#ece6f2;border-color:var(--lav)}
+@media (prefers-color-scheme: dark){.chips .chip:nth-child(3n+2).on{background:#2b343a}.chips .chip:nth-child(3n).on{background:#332e3a}}
+.stat:nth-child(4n+1){border-top:4px solid var(--accent)}
+.stat:nth-child(4n+2){border-top:4px solid var(--sky)}
+.stat:nth-child(4n+3){border-top:4px solid var(--good)}
+.stat:nth-child(4n){border-top:4px solid var(--lav)}
+nav button.on{background:var(--ink);color:var(--panel)}
+.face.back{background:var(--accent-soft)}
+.btn:disabled{opacity:.4;cursor:default}
+.label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.card{perspective:1200px;margin:14px 0 16px;cursor:pointer;user-select:none}
+.card-in{position:relative;min-height:240px;transition:transform .45s;transform-style:preserve-3d}
+.card.flip .card-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:14px;border:1px solid var(--line);background:var(--panel);padding:26px;display:flex;flex-direction:column;justify-content:center;box-shadow:var(--shadow)}
+.face.back{transform:rotateY(180deg);background:var(--accent-soft);border-color:var(--accent)}
+.face .q{font-family:Fraunces,Georgia,serif;font-size:22px;line-height:1.35}
+.face .a{font-size:16px}
+.face .tag{position:absolute;top:14px;left:18px;font-size:12px;color:var(--muted)}
+.face .hint{position:absolute;bottom:12px;right:16px;font-size:12px;color:var(--muted)}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--good);border-radius:99px;transition:width .3s}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:14px}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel)}
+.stat b{font-size:15px}
+.stat small{color:var(--muted)}
+.opts{display:grid;gap:8px;margin:14px 0}
+.opt{text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:12px 14px;border-radius:10px;font:inherit;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{background:var(--good-soft);border-color:var(--good)}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.qtext{font-family:Fraunces,Georgia,serif;font-size:21px;line-height:1.35;margin:8px 0 0}
+.score{font-family:Fraunces,Georgia,serif;font-size:40px;margin:6px 0}
+textarea{width:100%;min-height:200px;border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;background:var(--bg);color:var(--ink);resize:vertical}
+.timer{font-family:Fraunces,Georgia,serif;font-size:28px;font-variant-numeric:tabular-nums}
+.timer.low{color:var(--bad)}
+ol.outline{padding-left:20px;margin:8px 0}
+ol.outline li{margin:6px 0}
+.check{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
+.muted{color:var(--muted)}
+.esq{display:grid;gap:8px;margin-top:12px}
+.esq button{text-align:left}
+.kbd{font-size:12px;color:var(--muted);margin-top:8px}
+.hide{display:none}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:720px){.split{grid-template-columns:1fr}.face .q{font-size:19px}}
+
+#ham{position:fixed;right:18px;bottom:18px;z-index:50;display:flex;align-items:flex-end;gap:8px;pointer-events:none}
+#ham img{width:84px;height:auto;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 4px 8px rgba(60,50,35,.18));transition:transform .2s;user-select:none;-webkit-user-drag:none;animation:hamIdle 3.2s ease-in-out infinite}
+#ham img:hover{transform:scale(1.06) rotate(-4deg)}
+#ham .bubble{pointer-events:auto;max-width:220px;background:var(--panel);border:1px solid var(--line);border-radius:14px 14px 4px 14px;padding:9px 12px;font-size:13px;line-height:1.4;box-shadow:var(--shadow);opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s}
+#ham .bubble.show{opacity:1;transform:none}
+#ham .count{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+@keyframes hamIdle{0%,100%{translate:0 0}50%{translate:0 -3px}}
+@keyframes hamHop{0%{transform:translateY(0)}30%{transform:translateY(-26px) rotate(-8deg)}55%{transform:translateY(0) rotate(4deg)}70%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+@keyframes hamSpin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+@keyframes hamShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px) rotate(-5deg)}40%{transform:translateX(6px) rotate(5deg)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+#ham img.hop{animation:hamHop .6s ease}
+#ham img.spin{animation:hamSpin .7s ease}
+#ham img.shake{animation:hamShake .5s ease}
+@media (max-width:720px){#ham img{width:64px}#ham .bubble{max-width:170px}}
+@media (prefers-reduced-motion: reduce){#ham img,#ham img.hop,#ham img.spin,#ham img.shake{animation:none}}
+
+.xp{max-width:960px;margin:12px auto 0;padding:0 20px}
+.xp-box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.xp-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px;font-size:13px}
+.xp-rank{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:16px}
+.face{border-left:8px solid var(--wc,var(--line))}
+.face.front{background:linear-gradient(135deg,color-mix(in srgb,var(--wc) 18%,var(--panel)),var(--panel) 60%)}
+.face.back{background:color-mix(in srgb,var(--wc) 26%,var(--panel));border-color:var(--wc)}
+.face .sym{position:absolute;right:18px;top:6px;font-family:Fraunces,Georgia,serif;font-size:64px;line-height:1;color:var(--wc);opacity:.35;pointer-events:none}
+.face .tag{background:color-mix(in srgb,var(--wc) 35%,transparent);color:var(--ink);padding:2px 9px;border-radius:99px}
+.chip.wk.on{background:color-mix(in srgb,var(--wc) 35%,var(--panel))!important;border-color:var(--wc)!important}
+.chip.wk{border-left:5px solid var(--wc)}
+.stat{border-top:5px solid var(--wc)!important}
+.qpanel{border-top:6px solid var(--wc)}
+.qtag{display:inline-block;background:color-mix(in srgb,var(--wc) 35%,transparent);padding:2px 9px;border-radius:99px}
+.mgrid{display:grid;grid-template-columns:1fr 1.4fr;gap:12px;margin-top:12px}
+.mcol{display:grid;gap:8px;align-content:start}
+.mt{text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:11px 12px;border-radius:10px;font:inherit;font-size:14px;cursor:pointer;transition:opacity .3s,background .2s}
+.mt.term{border-left:6px solid var(--wc)}
+.mt small{display:block;font-size:11px;color:var(--muted)}
+.mt.sel{outline:2px solid var(--accent);outline-offset:1px}
+.mt.ok{background:color-mix(in srgb,var(--wc) 40%,var(--panel));border-color:var(--wc);opacity:.55;cursor:default}
+.mt.bad{background:var(--bad-soft);border-color:var(--bad)}
+.mt.shake{animation:hamShake .4s ease}
+.laurels{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.laurels span{position:absolute;top:-30px;animation:fall 2.6s ease-in forwards}
+@keyframes fall{to{transform:translate(var(--dx),110vh) rotate(540deg);opacity:.2}}
+.streak{display:inline-flex;align-items:center;gap:4px;font-weight:600;font-size:13px;color:var(--ink);background:var(--accent-soft);padding:3px 10px;border-radius:99px}
+@media (max-width:720px){.mgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Amorino's PHIL1013 Exam Trainer</h1>
+  <p class="sub">Society, Knowledge and Self. Weeks 5 to 13. Flashcards, quick quizzes and timed essay drills.</p>
+</header>
+<div class="xp"><div class="xp-box" id="xp"></div></div>
+<nav id="nav">
+  <button data-v="cards" class="on">Flashcards</button>
+  <button data-v="quiz">Quiz</button>
+  <button data-v="match">Match</button>
+  <button data-v="essay">Essay drill</button>
+  <button data-v="progress">Progress</button>
+</nav>
+<main>
+  <section id="v-cards"></section>
+  <section id="v-quiz" class="hide"></section>
+  <section id="v-match" class="hide"></section>
+  <section id="v-essay" class="hide"></section>
+  <section id="v-progress" class="hide"></section>
+</main>
+
+<script>
+const DECK = {
+"Week 5": [
+["What two problems does Arendt take from the Eichmann case?","Conceptual: define a new kind of evil that does not depend on the doer's intention. Legal: work out how such evil can be judged in law."],
+["What does \"banality\" describe in \"the banality of evil\": the deed or the doer?","The doer. The Holocaust is not banal; Eichmann's shallowness is."],
+["What is Arendt's specific charge against Eichmann?","Thoughtlessness: an inability to think from another's standpoint, shielded by cliché and the general climate of opinion."],
+["What is the shallow reading of banality, and why does the lecture reject it?","Evil done for petty motives like career. Rejected because it just swaps diabolical intentions for ordinary ones and stays inside the category of intention."],
+["What is theodicy?","The vindication of God's goodness in view of evil (theos, god; dikē, justice). Broadly, any scheme that lets us place evil and carry on."],
+["What did the Lisbon earthquake (1755) do to the concept of evil?","It shook deism and led us to deny nature has moral meaning, so evil was confined to human intentions and wills."],
+["Why does Eichmann break the post Lisbon settlement?","He produced more evil with less malice than ever before, so the intention criterion of evil fails."],
+["What did the Israeli court say about distance and responsibility?","Responsibility generally increases the further you are from the person who uses the fatal instrument with his own hands (247)."],
+["What do Eichmann's last words show?","Even facing his own death he reached for funeral oratory clichés, contradicting himself: language used to insulate himself from reality."],
+["What are Arendt's three lessons?","Enormous crime without enormous malice; deep responsibility despite physical remoteness; knowing evil insulated by cliché, conformity and thoughtlessness."],
+["What is the difference between philosophy and sophistry for Plato?","Sophistry is persuasive speech aimed at winning; philosophy is reason and argument aimed at truth."],
+["Define a priori and a posteriori knowledge.","A priori: by reflection, not particular observation (maths, philosophy for Plato). A posteriori: based on particular observation and experiment."],
+["What is the difference between know that and know how?","Know that is knowing a truth, shown by giving reasons in words. Know how is a skill, shown by doing something that works, like riding a bike."],
+["Why is true opinion as good a guide as knowledge (Meno)?","Someone with a true belief about the road to Larissa leads you there just as well as someone who knows it."],
+["What do the statues of Daedalus illustrate?","True beliefs run away unless fastened by a reasoned understanding of causes; fastened, they become knowledge and abide."],
+["What is the clay analogy for?","Listing kinds of clay (or knowledge) is no answer; Socrates wants the nature of knowledge in the abstract."],
+["State Plato's definition of knowledge.","True opinion combined with a rational account: truth, belief and justification, each necessary and jointly sufficient (JTB)."],
+["What do the coin toss and L shaped cloud cases show?","Accidentally true belief is not knowledge; knowledge is non accidentally true belief."],
+["What are Plato's two models of knowledge?","Craft (shoemaking, carpentry, knowing the way) and mathematics (geometry)."]
+],
+"Week 6": [
+["State JTB formally.","S knows that p iff (1) p is true, (2) S believes p, (3) S is justified in believing p."],
+["What are Gettier's two assumptions?","You can be justified in believing something false; justification is closed under known logical implication."],
+["Run the ten coins case.","Smith justifiably believes Jones will get the job and has ten coins, so infers the man who gets the job has ten coins. Smith gets the job and has ten coins: a justified true belief that is not knowledge."],
+["Run the Ford and Barcelona case.","Smith justifiably believes Jones owns a Ford, so believes Jones owns a Ford or Brown is in Barcelona. Jones has no Ford but Brown is luckily in Barcelona."],
+["Why does the lecture add the stopped clock and sheep cases?","They are Gettier cases with no false premise, so the problem is not just inference from falsehood."],
+["What is reflective equilibrium (Goodman)?","Adjusting definitions and cases against each other for the best fit; examples are not sacrosanct."],
+["What is the paradox of inquiry?","To define knowledge we must pick out cases of it, but how can we before we have the definition?"],
+["Why does demanding infallible justification fail?","It blocks Gettier cases but all our evidence is fallible, so knowledge would become almost impossible."],
+["What are the two senses of justification?","Epistemic blamelessness (entitlement) and reliability (ground: objective likelihood of being right)."],
+["What is the moral of the Gettier cases?","Knowing is not just being right and blameless; you also need good grounds."],
+["What does the locked car case show?","You can know something (that you locked the car) without being sure of it."],
+["What does the librarian Miss Tercy show?","A knower need not be aware of her good grounds; others can credit her with knowledge she would not claim."],
+["What is the KK principle and how does Jean refute it?","If you know p you know that you know p. Jean knows the dates in the history quiz without knowing he knows."],
+["Why does Radford think Jean knows that James I died in 1625?","It is wildly implausible he guessed so many right; he must have learned them and remembered, though he forgot learning."],
+["What radical claim does the history quiz support against Plato?","Knowledge does not require belief: Jean knows p while fairly sure his answer is wrong."],
+["What is the doubtful chicken sexer case?","Jack reliably sexes chicks but is made to doubt his ability, so he does not believe he is right, yet he knows."],
+["Why does Plato's view that knowledge includes belief seem plausible?","Under challenge we retreat from \"I know\" to \"at least I believe\", because both involve commitment to the truth."],
+["Why does \"Then you don't believe\" make no sense as a reply?","Belief needs no objectively good reasons; the natural reply is \"then you ought not to believe\"."],
+["What is evidentialism and its problem?","Always have good evidence for beliefs (Clifford). It generates a vicious infinite regress of reasons for reasons."]
+],
+"Week 7": [
+["What is the difference between an objective and a personal commitment to truth?","\"I know\" claims a public standard of good grounds; \"I believe\" only needs to satisfy oneself."],
+["Complete Austin's analogy: believing is to intending as knowing is to ...","Promising."],
+["What is the \"new plunge\"?","Saying \"I know\" or \"I promise\" gives others your word and entitles them to rely on you."],
+["Why is knowing not at the top of the belief scale?","The top of that scale is being sure, a psychological state; knowing is a different line of business."],
+["Why can't you say \"I know it, but I might be wrong\"?","Just as you can't say \"I promise, but I may fail\": you'd withdraw your word. That doesn't make knowers infallible."],
+["What is Austin's point about refusing someone's \"I know\"?","It is a special form of insult: it says they cannot be relied on."],
+["How is knowledge transmitted by testimony?","If S says \"I know p\" and I believe him, I know p at second hand, unless there is concrete reason to distrust him."],
+["What is testimonial injustice (Miranda Fricker)?","Unjustly lowering or denying someone's credibility because of their social group (race, gender, age)."],
+["What is the God and faith example?","Claim to know God exists and you face \"how do you know?\"; faith is believing without reason, a personal commitment."],
+["What is a practical explication (Craig)?","Hypothesise what the concept does for us, build a concept fit for that role, then compare it with our actual concept."],
+["What does Craig say the concept of knowledge is for?","To flag approved informants."],
+["Name Craig's three unreliable sources of truth.","Truth by accident (Mudweiser), true lies (the twin), the double bluff (a confession with an alibi)."],
+["State Nozick's tracking analysis.","S believes p; p is true; if p were false S would not believe it; if p were true S would believe it."],
+["Which premise of the BIV argument does Nozick deny?","If I know I have two hands, I know I'm not a BIV (closure)."],
+["Run the Jesse James case.","A bystander sees James's mask slip and knows he robbed the bank, but in a close world the mask didn't slip, so tracking says he doesn't know."],
+["What is Craig's diagnosis of Nozick?","Close possible worlds are not the epistemically relevant ones; only worlds where the mask slipped matter to the inquirer."],
+["What is the point of Austin's pig?","When the pig comes into view you don't gain more evidence, you just see it: knowledge is not evidence piled high."],
+["How do Austin and Craig fit together?","Craig gives the function (flag informants), Austin the mechanism (giving your word in testimony)."]
+],
+"Week 8": [
+["What did Pyrrhonists aim for, and how?","Tranquillity (ataraxia) through suspending belief, by finding equally good reasons for p and not p (equipollence)."],
+["Who are dogmatists, negative dogmatists and Pyrrhonists?","Dogmatists (Plato) claim truths; negative dogmatists (Academic sceptics) claim there is no knowledge; Pyrrhonists claim nothing and keep inquiring."],
+["What are the three horns of Agrippa's Trilemma?","Infinite regress, circular reasoning, and ad hoc assumption."],
+["Why is the reasons regress vicious?","Entitlement to the original belief is never established, only endlessly deferred."],
+["Give a virtuous regress and a virtuous circle.","Adding \"it is true that\" forever; inter definable concepts like description, fact, true proposition."],
+["What does foundationalism try, and what's its problem?","Stop the regress with self justifying beliefs (the cogito); there are too few to build on."],
+["What does coherentism try, and what's its problem?","Treat justification as a web; there are too many coherent sets of belief."],
+["What is a default entitlement?","Being entitled to a belief as a responsible believer within shared practices, until it is appropriately challenged."],
+["Give the lecture's legal analogy.","Citizens have default legal rights just by being citizens, which can be lost through treason, renunciation or crime."],
+["How is a default entitlement lost and regained?","\"That's not a pig, it's a decoy\" removes it; \"it just oinked\" defeats the challenge."],
+["What are Barnes's three humdrum ideas?","Don't plump for p without reason to prefer it; circular reasoning is no good; you can't reason forever."],
+["What was Descartes's aim in doubting?","Methodological scepticism: find absolutely certain foundations (scientia) for the new science."],
+["What did Descartes call ancient scepticism?","\"Stale cabbage\"."],
+["State the meditator's argument.","If I KNOW I have hands I KNOW I'm not dreaming; I don't KNOW I'm not dreaming; so I don't KNOW I have hands."],
+["What is the difference between ordinary and metaphysical doubt?","Ordinary doubt is local and checkable (the optometrist); metaphysical doubt is global and can't be checked without begging the question."],
+["What are the three essential features of the cogito?","First person, present tense, and mental acts only (not \"I drink\")."],
+["Why does Descartes need God?","To guarantee that clear and distinct certainties are true and that the senses are largely reliable."],
+["How does ancient scepticism differ from modern?","Ancient is a way of life aiming at tranquillity; modern is an intellectual position doubting the external world while keeping the mind."]
+],
+"Week 9": [
+["Who founded American pragmatism, and what inspired it?","Peirce, James and Dewey, inspired by Darwin, prioritising practice and the agent's view."],
+["Why does Peirce focus on belief rather than knowledge?","To get clear on belief and doubt first, setting aside the need to show knowledge worthy grounds."],
+["State Peirce's convergence theory of truth.","Truth is the opinion fated to be agreed by all who investigate; its object is the real."],
+["What is belief, and what is doubt, for Peirce?","Belief is a calm habit of action; doubt is an irritating, paralysing wavering that drives inquiry."],
+["What is the method of tenacity and its problem?","Clinging to your view and ignoring the rest (the ostrich); others no less reasonable disagree."],
+["What is the method of authority and its problem?","An institution imposes belief; we become intellectual slaves and see other cultures believe differently."],
+["What is the a priori method and its problem?","Free metaphysical reasoning; systems become a matter of taste with no way to settle disputes."],
+["Why is the scientific method best?","It alone fits the realist hypothesis of a mind independent reality and separates right from wrong ways to truth."],
+["What is Neurath's boat?","Revising beliefs is like repairing a boat at sea: you fix planks while relying on the rest."],
+["What is paper doubt?","Pretended philosophical doubt with no real reason; real doubt needs a positive reason."],
+["Quote Peirce's line against Descartes.","\"Let us not pretend to doubt in philosophy what we do not doubt in our hearts.\""],
+["What is a pro tanto reason?","A reason that counts in favour of an action but can be outweighed."],
+["What is wrong with the desire satisfaction theory of wellbeing?","Some desires, if satisfied, wreck your wellbeing, such as spending everything now and leaving your future self poor."],
+["Distinguish numerical and qualitative identity.","Numerical: one and the same thing (Clark Kent and Superman). Qualitative: exactly alike (identical twins)."],
+["What is endurantism?","The very same object exists wholly at different times."],
+["What is the soul view of personal identity?","You are your immaterial soul; you survive just in case it does."],
+["What is Weirob's chocolates argument?","You learn swirl means caramel by biting chocolates; you can never \"bite into\" a soul, so same body can't show same soul."],
+["What is the Blue River argument?","You recognise the river by similar water, yet it's different water each time; similar psychology doesn't require the same soul."],
+["What is the HAZON point?","An undetectable thing separate from my body and mind is not something I'd identify with or care about."]
+],
+"Week 10": [
+["Run the doubled teletransporter case.","It makes two of you at A and C, both to be tortured; you'd still pay $500 to prevent it for prudential reasons."],
+["Why can't you be identical with both A and C?","Identity is transitive: if you = A and you = C then A = C, but they are two people."],
+["What follows about identity and prudence?","You still have prudential reason with no future self identical with you, so identity does not ground prudence."],
+["What is the problem of change for identity?","Freddie is tired at t and not tired at t1; identical things share all properties."],
+["What is perdurantism?","People are extended in time by having numerically distinct temporal parts, like spatial parts."],
+["What is psychological connectedness?","Direct similarity of beliefs, memories, values and plans between nearby selves; it comes in degrees."],
+["Why is connectedness not enough to make a self?","You're barely connected to your 8 month old self, and more connected to the person next to you."],
+["What is psychological continuity?","Overlapping chains of connectedness linking selves; it does not come in degrees."],
+["What do the two views say about the brain wipe?","Psychological: I wake in the new body. Bodily: my mind was erased and I stay in the wiped body."],
+["What do the two views say about teletransportation?","Psychological: you survive. Bodily: you die and a clone is made."],
+["What is the non branching clause?","Continuity only counts as identity if it doesn't branch into two, which seems ad hoc."]
+],
+"Week 11": [
+["Why does psychological similarity alone fail?","An evil scientist's twin or a 7000 year fluke duplicate shares your psychology but isn't you."],
+["What fixes it?","Require causal connection: the duplicate's memory of swimming wasn't caused by your swimming."],
+["Why can't the whole perduring self be the seat of decision?","It has inconsistent beliefs and desires (raining and not raining), so it can't deliberate; the current little self does."],
+["What is the savings problem?","A 5 minute self won't see the savings, and being parts of one whole, like parts of a university, gives no prudential reason."],
+["What is Humeanism about reasons?","Your reasons depend on your desires and beliefs; desires are not rational or irrational."],
+["What two sources of reasons does a current self have to care about future selves?","Anticipation of their experiences, and projects that need a consortium of selves."],
+["Why does self vs other become a difference of degree?","I can have the same kind of reason to promote your future wellbeing; I'm just more connected to my own selves."],
+["What is constitutive reductionism (Parfit)?","A person is distinct from body and experiences but consists in them, like a statue and its bronze."],
+["What is an empty question?","One we can't answer though we know all the facts, such as whether the 50% replaced person is me."],
+["What is Relation R?","Psychological continuity and connectedness, which Parfit says is what matters."],
+["State Parfit's argument from below.","Identity just consists in other facts; only those facts can matter; so identity can't matter in itself."],
+["What is realism about importance?","What matters is reality, not how it is described; whether he is \"me\" adds no fact."],
+["Run My Division.","Each half of my brain goes into a new body; both are like me, neither can be me, yet nothing that matters is missing."],
+["What is the triplets analogy?","Children who need a twin are fine as triplets; what matters is a sibling, as what matters is continuity, not identity."],
+["What are Kind's extreme and moderate claims?","Extreme: reductionism gives no reason for special concern. Moderate: Relation R does give such reason."],
+["What is Kind's principle (C)?","Theories of personal identity are relevant to justifying special concern, but needn't justify it."],
+["How does Kind split Wolf's question?","Q1n: why care for my present self? Q2n: why care for my future self? Identity theory bears on Q2n."]
+],
+"Week 12": [
+["What are Dennett's three location principles?","Where Hamlet (body) goes; where Yorick (brain) goes; wherever he thinks he is (his point of view)."],
+["Who is Hubert?","A computer duplicate of Dennett's brain run in parallel, switchable with Yorick to drive Fortinbras."],
+["How does Dennett's story end?","He flips the switch and the other Dennett speaks: the brains had drifted out of sync and the other was trapped."],
+["What is Parfit's Complex vs Simple View?","Complex: identity consists in continuities, like ships or nations. Simple: identity is a further, all or nothing fact."],
+["What is the Equal Concern Claim?","A rational person should be equally concerned about all parts of his future (Sidgwick)."],
+["What is Parfit's principle (B)?","When an important relation holds to a lesser degree, it is not irrational to think it less important."],
+["Why is Parfit's discount rate not about time?","It tracks weakening connectedness, so it barely applies over 5 minutes or 5 days, only over decades."],
+["What does Parfit suggest morality should do?","Annex what prudence abandons: it may be wrong to burden your future self for smaller gains now."],
+["Define time bias.","All else fixed, preferences sensitive to where in time events are located."],
+["Define near bias and future bias.","Near: good things sooner, bad later. Future: good things in the future, bad in the past."],
+["What is the hospital case?","Most prefer a painful operation was yesterday rather than tomorrow, even a 10 hour one vs 1 hour."],
+["What is Future Tuesday Indifference?","Not caring about pains on future Tuesdays; a brute, arbitrary preference, so irrational."],
+["State the non arbitrariness argument against near bias.","Rational preferences ignore arbitrary differences; distance from now is arbitrary; so near bias is impermissible."],
+["What is the connectedness argument for near bias?","Self concern rests on connectedness, which comes in degrees and falls with distance, so discount the future."],
+["What does Carrie's Crossfit case show?","If past pain counts for nothing she can never finish her workout, so future bias seems irrational."]
+],
+"Week 13": [
+["What do time neutralists claim?","Time biased preferences, including future bias, are rationally impermissible."],
+["What is the temporal metaphysics defence of future bias?","If time really passes, past events are over and done, which might justify future bias."],
+["What is the causal inaccessibility explanation?","We evolved to care less about the past because we can't affect it; it explains but doesn't justify."],
+["What is the first person vs third person asymmetry?","We're future biased about our own pain but time neutral about others', so first person bias looks irrational."],
+["Run Dougherty's pain pump.","A risk averse, future biased agent takes a help early and a help late pill and ends up with one extra minute of pain for nothing."],
+["What is Greene and Sullivan's scheduling problem?","Future biased Billy insists on riding second to avoid regret, which seems irrational."],
+["What is the meagre returns problem?","An absolutely future biased agent waits an hour for less than one cookie to avoid regret."],
+["Why does it matter whether future bias is a tiebreaker?","Only if it is stronger than a tiebreaker do the exploitation arguments bite, and evidence suggests it often is."]
+]
+};
+
+const QUIZ = [
+["Week 5","According to Arendt, what most characterises Eichmann?","Thoughtlessness: an inability to see things from another's standpoint","A fanatical hatred that drove him to mastermind the genocide","A diagnosable pathology that removed his capacity to choose","A deep ideological conviction he refused to abandon at trial"],
+["Week 5","In Arendt's phrase, what is \"banal\"?","The doer","The deed","The legal process","The victims' suffering"],
+["Week 5","Which reading of \"banality\" does the lecture reject as missing Arendt's point?","Evil done for petty motives such as career advancement","Evil shielded from reality by ready made phrases","Evil committed without any great malicious will","Evil carried out through conformity and lawfulness"],
+["Week 5","After the 1755 Lisbon earthquake, the response that won out was to:","Deny nature has moral meaning, confining evil to human wills","Treat natural disasters as expressions of divine judgment","Abandon the concept of evil altogether","Locate evil in social institutions rather than persons"],
+["Week 5","What did the Israeli court conclude about responsibility?","It generally increases with distance from whoever wields the fatal instrument","It decreases steadily the further one is from the killing","It is shared equally by everyone in the chain of command","It depends entirely on whether the outcome was intended"],
+["Week 5","Why are Eichmann's last words significant for Arendt?","Facing his own death, he reached for funeral oratory clichés","He finally expressed remorse for what he had done","He revealed the fanatical conviction the prosecution alleged","He blamed his superiors, confirming the superior orders defence"],
+["Week 5","What does the Meno's guide case establish?","A true opinion leads to right action as well as knowledge does","A guide must have travelled the route to be trusted","A guide must be able to explain the route in words","Without justification a true opinion is worthless"],
+["Week 5","What do the statues of Daedalus illustrate?","True opinions are unstable until tied down by reasoning about causes","Knowledge is a work of craft rather than reflection","More beautiful beliefs are more likely to be true","Recollection is impossible without a teacher"],
+["Week 5","Why does Socrates reject Theaetetus's list of geometry, cobbling and carpentry?","It names subjects of knowledge, not what knowledge itself is","Crafts are know how, so they cannot count as knowledge","Geometry is a priori but cobbling is not","It mixes genuine knowledge with mere opinion"],
+["Week 5","Which would Plato count as a priori knowledge?","That a triangle's angles sum to two right angles","That magnets attract iron","That this road leads north","That this lump came from a potter's workshop"],
+["Week 5","Know how differs from know that in that it is shown by:","Doing something that works","Giving a rational account in words","Holding a true belief","Citing a reliable authority"],
+["Week 5","Plato's starting assumption about knowledge is that it is:","True belief plus some further condition","Belief that has survived Socratic questioning","A special perception of the Forms alone","Whatever a community of experts agrees on"],
+
+["Week 6","Gettier's cases are aimed at the claim that justified true belief is:","Sufficient for knowledge","Necessary for knowledge","Impossible to achieve","The same as certainty"],
+["Week 6","In the job case, which belief of Smith's is justified and true but not knowledge?","The man who will get the job has ten coins in his pocket","Jones will get the job","Jones has ten coins in his pocket","Smith himself will get the job"],
+["Week 6","Which principle lets Smith pass his justification to the disjunction about Brown?","Closure of justification under known implication","The KK principle","Reflective equilibrium","Default entitlement"],
+["Week 6","Why does the lecture add the stopped clock to Gettier's own cases?","It involves no inference from a false belief","It shows belief is not necessary for knowledge","It shows truth is not necessary for knowledge","It shows justification must be infallible"],
+["Week 6","Why does demanding infallible justification fail as a fix?","Nearly all our evidence is fallible, so we would know almost nothing","It still lets the stopped clock case through","It makes knowledge depend on luck","It conflicts with the closure principle"],
+["Week 6","Gettier cases show that knowing requires more than:","Being right and epistemically blameless","Having a reliable belief forming process","Having objectively good grounds","An objective likelihood of being right"],
+["Week 6","Reflective equilibrium answers the paradox of inquiry by saying:","We start from examples but adjust them and the definition together","We must define a concept before using any examples","Examples of knowledge are beyond revision","Definitions come from surveying what people say"],
+["Week 6","The locked car case shows knowledge does not require:","Being sure","Belief","Truth","Any grounds at all"],
+["Week 6","Jean's history quiz is a counterexample to:","The KK principle","Closure of justification","Reflective equilibrium","Evidentialism"],
+["Week 6","What does the case of Miss Tercy show?","Another person can credit you with knowledge you would not claim","Anxiety makes knowledge impossible","Memory is not a genuine source of knowledge","A librarian's testimony is unreliable"],
+["Week 6","Why does \"Then you don't believe\" make no sense as a reply to doubt?","Belief does not require objectively good reasons","Belief always requires certainty","Belief is a social status","Belief cannot be retracted once formed"],
+["Week 6","Clifford's evidentialism runs into:","A vicious regress of reasons for reasons","The failure of the KK principle","A denial that testimony transmits knowledge","Gettier's counterexamples"],
+
+["Week 7","On Austin's analogy, being sure corresponds to:","Fully intending","Promising","Hoping","Knowing"],
+["Week 7","Saying \"I know\" differs from \"I'm sure\" mainly because it:","Gives others my authority to rely on the claim","Reports a stronger feeling of confidence","Guarantees that I cannot be mistaken","Describes a special mental act of cognition"],
+["Week 7","Why can't one say \"I know it, but I may be wrong\"?","It withdraws the very word one is giving","Knowledge is infallible","Knowledge requires absolute certainty","It violates the KK principle"],
+["Week 7","For Austin, refusing to accept someone's \"I know\" is:","A special kind of insult","A request for further evidence","A sign of healthy scepticism","Irrelevant to whether they know"],
+["Week 7","Testimonial injustice occurs when:","Someone's credibility is lowered because of their social group","A young child's testimony is doubted","A witness statement is treated as evidence","Testimony is accepted without checking"],
+["Week 7","Craig's hypothesis is that we have the concept of knowledge in order to:","Flag approved informants","Separate a priori from a posteriori truths","Refute the external world sceptic","Analyse belief into its components"],
+["Week 7","Nozick's third and fourth conditions are called:","Tracking conditions","Closure conditions","Defeasibility conditions","Indicator conditions"],
+["Week 7","Nozick answers the brain in a vat argument by denying:","That knowledge is closed under known implication","That I know I have two hands","That I fail to know I'm not envatted","That envatted worlds are possible"],
+["Week 7","Why is the Jesse James case a problem for Nozick?","In a close world the mask stays on, so tracking fails though the bystander knows","James has a twin, so the bystander cannot know","The bystander's belief was not caused by the robbery","The bystander cannot give a rational account"],
+["Week 7","What does Austin's pig example show?","Seeing settles the question without adding more evidence","Knowledge is evidence accumulated to a threshold","Perception is less reliable than inference","Belief should be withheld until certain"],
+["Week 7","\"If you want to know the way ask a policeman\" illustrates that:","A detectable property can signal reliability without being a reliable method","Police always use reliable methods","Authority is the best source of knowledge","Testimony requires checking credentials first"],
+["Week 7","How does the lecture reconcile Austin and Craig?","Craig gives the point of the concept, Austin the mechanism of testimony","Craig refutes Austin's view of belief","Austin shows tracking is what matters","Both reduce knowledge to reliable true belief"],
+
+["Week 8","Pyrrhonists suspend belief because they find:","Equally strong reasons for and against","That nothing exists independently of mind","That the senses always deceive","That knowledge has been proven impossible"],
+["Week 8","Academic sceptics count as negative dogmatists because they:","Assert that there is no knowledge","Refuse to make any claims at all","Suspend belief to reach tranquillity","Accept appearances but reject dogmas"],
+["Week 8","Which is NOT one of the three horns of Agrippa's Trilemma?","Equipollence","Infinite regress","Arguing in a circle","Ad hoc assumption"],
+["Week 8","The regress of adding \"it is true that\" is virtuous because:","Nothing about p depends on completing it","It eventually terminates","It is really a circle","It applies only to a priori truths"],
+["Week 8","The main problem for coherentism is that:","Too many coherent sets of belief are possible","There are too few self justifying beliefs","It depends on a good God","It cannot account for perception"],
+["Week 8","Default entitlements stop the regress because they are:","Non arbitrary but not self justifying","Self justifying like the cogito","Arbitrary but harmless","Justified by a coherent web"],
+["Week 8","In the lecture's example, which reply restores entitlement after \"It's a decoy\"?","\"It just oinked\"","\"I'm sure it's a pig\"","\"I'm entitled by default\"","\"Decoys are rare\""],
+["Week 8","What is Barnes's verdict on the Pyrrhonian argument?","It uses only humdrum ideas and is an enemy of common sense","It collapses once we drop the Stoic theory","It shows only \"if Q, then scepticism\"","Default entitlements easily evade it"],
+["Week 8","\"I think\" survives doubt but \"I drink\" does not because:","One can doubt having a body","Drinking is not conscious","Drinking is described in the past tense","Drinking is a third person fact"],
+["Week 8","Doubt about your eyesight differs from doubt about the senses in general because:","The first can be checked without begging the question","The first is a priori","Only the second is livable","The second concerns other minds"],
+["Week 8","Descartes appeals to God in order to:","Guarantee that clear and distinct perceptions are true","Prove the cogito","Answer Pyrrhonian equipollence","Show that other people have minds"],
+["Week 8","From the Pyrrhonian point of view, Cartesian scepticism is:","A form of negative dogmatism","A way of life","A form of fideism","Identical to Academic scepticism"],
+
+["Week 9","For Peirce, belief is:","A habit of action","A feeling of certainty","A correspondence with reality","An act of will"],
+["Week 9","Peirce's doubt is best described as:","An unsettled, irritating state that prompts inquiry","Disbelief in a proposition","A method for finding foundations","A calm suspension of judgment"],
+["Week 9","The main problem with the method of tenacity is:","Others no less reasonable disagree","It makes us intellectual slaves","Its results are a matter of taste","It requires empirical testing"],
+["Week 9","The a priori method fails because:","Rival systems have no way to settle their disputes","It forcefully suppresses dissent","It ignores what others believe","It relies too heavily on authority"],
+["Week 9","Why is the scientific method best for Peirce?","It alone fits the hypothesis of a mind independent reality","It brings the greatest peace of mind","It is historically the oldest","It never produces mistakes"],
+["Week 9","Neurath's boat expresses the idea that:","We revise beliefs while relying on the rest","Knowledge must be rebuilt from secure foundations","Inquiry is a solitary task","Belief is a habit of action"],
+["Week 9","Pragmatists reply to the evil demon that it raises:","Only paper doubt, with no positive reason","A real doubt that inquiry must resolve","A doubt only God can settle","A doubt about mathematics, not the world"],
+["Week 9","Peirce's convergence theory says truth is:","The opinion all inquirers are fated to agree on","Whatever works for the individual","Correspondence between belief and fact","What is clearly and distinctly perceived"],
+["Week 9","Which is a problem for the desire satisfaction theory of wellbeing?","Satisfying some desires ruins your wellbeing","It ignores what people actually want","It makes wellbeing objective","It cannot explain pro tanto reasons"],
+["Week 9","Clark Kent and Superman illustrate:","Numerical identity","Qualitative identity","Endurantism","Psychological continuity"],
+["Week 9","Weirob's chocolates argument shows that:","We can't establish a body soul correlation without observing souls","Psychology changes, so souls must change too","Souls can survive the death of the body","Similar bodies always house similar souls"],
+["Week 9","The Blue River argument shows that:","Similar psychology does not require the same soul","Rivers have no identity over time","Bodies are better evidence than minds","Souls flow like water through bodies"],
+
+["Week 10","In the doubled teletransporter, why can't you be identical with both arrivals?","Identity is transitive and they are two people","They have different memories from each other","Bodily continuity has been broken","They are only qualitatively similar to you"],
+["Week 10","What does the doubled teletransporter case suggest?","Identity does not ground prudential reasons","You have no reason to pay the $500","Bodily continuity is what matters","You are identical with the first arrival only"],
+["Week 10","Perdurantism holds that people persist by:","Having numerically distinct temporal parts","Being wholly present at each time","Having one immaterial soul","Having time indexed properties"],
+["Week 10","Why is psychological connectedness alone not enough to unite a self?","You are barely connected to your infant self","It does not come in degrees","It is transitive","It requires bodily continuity"],
+["Week 10","Which of these comes in degrees?","Psychological connectedness","Psychological continuity","Numerical identity","Transitivity"],
+["Week 10","A bodily continuity theorist says the brain wipe leaves you:","In your own body with no mind","Waking up in the new body","As two different people","In an indeterminate state"],
+["Week 10","The gradual robot case causes trouble for:","Bodily continuity, if body means human animal","Psychological continuity","The soul view","Perdurantism"],
+["Week 10","A non branching clause is added to psychological continuity to handle:","Fission","Fluke duplicates","The problem of change","Souls switching bodies"],
+
+["Week 11","The evil scientist's duplicate shows psychological continuity also needs:","Causal connection","Bodily continuity","A soul","A non branching clause"],
+["Week 11","Why is the current little self the seat of decision?","The whole person has inconsistent attitudes and can't deliberate","Only the current self is conscious","Future selves do not yet exist","Identity is transitive"],
+["Week 11","On the Humean view, a current self has reason to care about future selves because of:","Its own anticipation and projects","A special duty owed to itself","The identity between them","An objective list of goods"],
+["Week 11","Parfit calls a question like \"would the 50% replaced person be me?\":","Empty","Vicious","Contradictory","Empirical"],
+["Week 11","Parfit's argument from below concludes that identity:","Cannot matter in itself, since it consists in other facts","Matters more than continuity","Is a further fact","Matters only to non reductionists"],
+["Week 11","In My Division, Parfit concludes that:","Nothing that matters is lost, though neither person is me","I die in the operation","I become both people","I survive as the one with the left half"],
+["Week 11","The triplets analogy shows that what matters is:","At least one continuous successor","Exactly one successor","Having a twin","Numerical identity"],
+["Week 11","Kind's principle (C) says theories of personal identity are:","Relevant to justifying special concern","Required to justify special concern","Irrelevant to special concern","The sole source of its justification"],
+["Week 11","The \"extreme claim\" in Kind says that reductionism:","Gives no reason for special concern","Gives reason via Relation R","Is false","Treats identity as a further fact"],
+
+["Week 12","Which of Dennett's principles is refuted by brain transplant cases?","Where Hamlet goes, there goes Dennett","Where Yorick goes, there goes Dennett","Dennett is wherever he thinks he is","Where Hubert goes, there goes Dennett"],
+["Week 12","In Dennett's story, Hubert is:","A computer duplicate of his brain","His second body","His first body","The project director"],
+["Week 12","Parfit's Equal Concern Claim says a rational person should:","Care equally about all parts of their future","Care more about nearer parts of their future","Care equally about others and themselves","Care only about their present self"],
+["Week 12","Parfit's permissible discount rate is based on:","Degree of connectedness","Temporal distance","Probability","Identity"],
+["Week 12","On Revised Prudence, failing to save for old age may be:","Not irrational, but morally criticisable","Always irrational","Beyond criticism","A matter of taste"],
+["Week 12","Preferring 10 hours of pain yesterday to 1 hour tomorrow is:","Future bias","Near bias","Time neutrality","Risk aversion"],
+["Week 12","Future Tuesday Indifference is used to motivate:","The non arbitrariness principle","Near bias","Future bias","The connectedness argument"],
+["Week 12","In the argument for near bias, the criterion C cannot be identity because identity:","Does not come in degrees","Is not transitive","Is a further fact","Ignores the body"],
+["Week 12","Carrie's Crossfit workout is an argument against:","Future bias","Near bias","Time neutrality","Regret aversion"],
+
+["Week 13","Dougherty's pain pump combines future bias with:","Risk aversion","Regret aversion","Near bias","Evidential decision theory"],
+["Week 13","Greene and Sullivan's scheduling problem combines future bias with:","Regret aversion","Risk aversion","Loss aversion","Near bias"],
+["Week 13","The causal inaccessibility explanation:","Explains future bias without justifying it","Justifies future bias","Shows that time really passes","Shows future bias is only a tiebreaker"],
+["Week 13","The first person vs third person asymmetry suggests that:","Our future bias about ourselves is the irrational one","Our third person preferences are biased","Future bias is rational","Others' pain matters less"],
+["Week 13","Why does it matter whether future bias is just a tiebreaker?","If so, it has no exploitable practical upshots","If so, it is arbitrary","If so, time really passes","If so, it collapses into near bias"],
+["Week 13","Hedden shows future biased agents violate:","Utility conditionalisation and preference reflection","Closure and the KK principle","Equal concern and principle (B)","Non arbitrariness and tracking"]
+];
+
+const ESSAYS = [
+{w:"Week 6",q:"How does Plato's view regarding the difference between true belief and knowledge differ from Gettier's view? Is either view correct? Why/why not?",o:[
+"Thesis: Gettier is right that JTB isn't sufficient; Plato's idea of fastening points toward the fix.",
+"Plato: knowing implies truth; the road to Larissa; the statues of Daedalus; true belief plus a rational account; three necessary and jointly sufficient conditions.",
+"Gettier: two assumptions (justified false belief, closure). Run the ten coins case in full.",
+"Add the stopped clock or sheep: not just false premises. Accidentally justified true belief isn't knowledge.",
+"Strengthening to infallible justification fails (fallible evidence; reflective equilibrium).",
+"Evaluate: two senses of justification; knowledge needs good grounds, not just blamelessness. Plato's \"understanding of causes\" anticipates this.",
+"Conclude."]},
+{w:"Week 7",q:"Can one believe something one knows to be false? Why/why not? Answer with reference to Austin's view on knowledge and belief.",o:[
+"Thesis: yes, possible but defective, like an insincere promise.",
+"Plato's molecular model would make it impossible.",
+"Austin: believing like intending (personal), knowing like promising (giving your word). Knowing isn't the top of the belief scale; being sure is.",
+"So knowledge doesn't contain belief, and knowing not p while believing p isn't a straight contradiction. Radford's Jean is the mirror case.",
+"The analogy shows the cost: like promising while intending not to, it's insincere or self deceived.",
+"Objection: both are truth commitments, so it's incoherent (Moorean). Reply: the absurdity is in asserting both, not being in both states (the fearful flyer).",
+"Conclude."]},
+{w:"Week 8",q:"What is Agrippa's Trilemma? Does it involve a vicious infinite regress?",o:[
+"Context: Pyrrhonism, suspension of belief, ataraxia; three of Agrippa's Five Modes.",
+"The three horns: regress, circle, ad hoc assumption; why each confers no entitlement (Barnes's reconstruction).",
+"Virtuous vs vicious: \"it is true that\" regress vs the reasons regress, where entitlement is endlessly deferred.",
+"So yes, given its assumption, the regress is vicious.",
+"Foundationalism (too few foundations) and coherentism (too many webs).",
+"Better: deny that entitlement always needs an independent reason. Default entitlements, citizenship analogy, the decoy pig.",
+"Objection from Barnes's humdrum ideas; reply; conclude."]},
+{w:"Week 9",q:"How do Pragmatists respond to Descartes's Evil Demon Hypothesis? Do you agree with their response? Why/why not?",o:[
+"The hypothesis and the meditator's argument (scientia).",
+"Pragmatist basics: belief as habit, doubt as irritation, inquiry aims at settled opinion.",
+"The demon gives only paper doubt; we cannot begin with complete doubt; real doubt needs a positive reason (decoy factory).",
+"Inquiry is social and has no pure form (\"facts about what?\").",
+"Fallibilist but anti sceptical; Neurath's boat.",
+"Objection: changes the subject. Reply: relevant doubts (Austin, Craig); Descartes calls his doubt metaphysical.",
+"Verdict."]},
+{w:"Week 10",q:"What is the soul view of personal identity and how does it differ from the psychological continuity view? Do you agree with either of the views? Why/why not?",o:[
+"Frame: what makes a future self mine? Identity, numerical vs qualitative.",
+"Soul view: you are your soul; survive iff it does; not your body.",
+"Psychological continuity: chains of connections plus the right causal links.",
+"Differences: detectable vs not; degrees vs all or nothing; tied to what we care about; can branch.",
+"Against the soul view: Weirob's chocolates and Blue River; the HAZON.",
+"Against continuity: duplicates (causal fix) and fission (non branching looks ad hoc).",
+"Verdict, perhaps with Parfit's twist that identity isn't what matters."]},
+{w:"Week 10",q:"How would you respond to the teletransporter case? Argue for your case with reference to the views discussed in class.",o:[
+"Describe the case (scan, destroy, rebuild).",
+"Soul view: no usable answer. Bodily: you die. Psychological: you survive.",
+"The doubled version: transitivity means you can't be both, so neither; yet you'd still pay the $500.",
+"So identity isn't what matters; the single case has everything that matters (Parfit, My Division).",
+"Objection: it feels like death. Reply: you care about continuity, not matter.",
+"Your verdict: step in or not, and on which view."]},
+{w:"Week 11",q:"What is a reason to think that it is not whole perduring persons that count as being rational or not? Do you agree or disagree? Why/why not?",o:[
+"Perdurantism: a big self of distinct little selves linked by continuity.",
+"The reason: the whole has inconsistent beliefs and desires, so it can't deliberate; the current little self is the seat of decision.",
+"Consequence: the savings problem; parts of a university.",
+"Humean answer: anticipation and projects give the current self reasons; self vs other is a matter of degree.",
+"Agree: fits assessment at a time and Parfit. Disagree: plans, promises and lifelong projects seem to belong to whole persons.",
+"Link to time bias: connectedness discounting; conclude."]},
+{w:"Week 12",q:"Is it rational to be time biased (near biased or future biased)? Answer with reference to the course content.",o:[
+"Define time bias, near bias, future bias (hospital and party cases).",
+"Against near bias: non arbitrariness (Future Tuesday, beans); life going well (life store).",
+"For near bias: connectedness comes in degrees (Parfit, principle B).",
+"Assess: connectedness justifies discounting decades, not days.",
+"Future bias: over and done with vs arbitrariness, Carrie, Dougherty's pain pump, scheduling problem.",
+"Passage and causal inaccessibility explain more than justify; tiebreaker evidence.",
+"Verdict."]}
+];
+
+/* ---------- storage ---------- */
+const KEY = "phil1013-trainer-v1";
+let S = {box:{}, quiz:{}};
+try{ const raw = localStorage.getItem(KEY); if(raw) S = Object.assign(S, JSON.parse(raw)); }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+const WCOL={"Week 5":"#e2b84f","Week 6":"#9dbb93","Week 7":"#9bbbd2","Week 8":"#bfaedb","Week 9":"#e09d90","Week 10":"#eeb98a","Week 11":"#8fc7b6","Week 12":"#cdb98f","Week 13":"#aaa39a"};
+const WSYM={"Week 5":"Α","Week 6":"Γ","Week 7":"Δ","Week 8":"Θ","Week 9":"Λ","Week 10":"Ξ","Week 11":"Π","Week 12":"Σ","Week 13":"Ω"};
+const WTOP={"Week 5":"Evil and Plato","Week 6":"Gettier and Radford","Week 7":"Austin and Craig","Week 8":"Scepticism","Week 9":"Peirce and the soul","Week 10":"Fission and continuity","Week 11":"What matters","Week 12":"Time bias","Week 13":"Future bias"};
+const MATCH={
+"Week 5":[["Banality of evil","Enormous evil from a shallow, thoughtless doer"],["Theodicy","Vindicating God's goodness despite evil"],["Thoughtlessness","Unable to think from another's standpoint"],["Sophistry","Persuasion aimed at winning, not truth"],["A priori","Known by reflection alone"],["Know how","Shown by doing something that works"],["Statues of Daedalus","True beliefs run away unless tied down"],["Rational account","What fastens true belief into knowledge"]],
+"Week 6":[["JTB","Truth, belief and justification"],["Gettier case","Justified true belief that is true by luck"],["Closure","Justified in P, knowingly infer Q, so justified in Q"],["Reflective equilibrium","Adjusting cases and definitions together"],["KK principle","Knowing implies knowing that you know"],["Ground","Objective likelihood of being right"],["Evidentialism","Always have evidence for your beliefs"],["Retreat to belief","Falling back from \"I know\" under challenge"]],
+"Week 7":[["New plunge","Giving others your word"],["Being sure","Top of the belief scale"],["Testimony","Knowing at second hand"],["Testimonial injustice","Credibility denied because of social group"],["Practical explication","Building a concept from its function"],["Approved informant","What the concept of knowledge flags"],["Tracking","Wouldn't believe p if false, would if true"],["Relevant worlds","The possibilities that matter to an inquirer"]],
+"Week 8":[["Ataraxia","Tranquillity of mind"],["Equipollence","Equal reasons for and against"],["Negative dogmatism","Asserting there is no knowledge"],["Foundationalism","Self justifying stopping points"],["Coherentism","Justification as a web, not a chain"],["Default entitlement","Entitled until appropriately challenged"],["Scientia","Absolutely certain knowledge"],["Voluntarism","God could make 2 + 3 = 5 false"]],
+"Week 9":[["Belief (Peirce)","A habit of action"],["Paper doubt","Pretended doubt with no real reason"],["Tenacity","The ostrich with its head in the sand"],["Neurath's boat","Repairing beliefs while staying afloat"],["Convergence theory","Truth as the fated agreement of inquirers"],["Pro tanto reason","Counts in favour but can be outweighed"],["Numerical identity","One and the same thing"],["Endurantism","Wholly present at each time"]],
+"Week 10":[["Transitivity","If x = y and y = z then x = z"],["Fission","One person splitting into two"],["Perdurantism","Persisting through temporal parts"],["Connectedness","Direct psychological links, in degrees"],["Continuity","Overlapping chains of connections"],["Bodily continuity","Chains of physical similarity and dependence"],["Non branching clause","Continuity counts only if it doesn't split"]],
+"Week 11":[["Seat of decision","The current little self"],["Humeanism","Reasons come from desires and beliefs"],["Replica","A duplicate built from new matter"],["Empty question","Unanswerable though all facts are known"],["Relation R","Psychological continuity plus connectedness"],["Realism about importance","Reality matters, not how it's described"],["Extreme claim","Reductionism gives no reason for special concern"],["Further fact","All or nothing identity of non reductionists"]],
+"Week 12":[["Yorick","Dennett's brain in the vat"],["Hamlet","Dennett's first body"],["Hubert","The computer duplicate brain"],["Equal Concern Claim","Care equally for all your future"],["Principle (B)","Less of a relation can rationally matter less"],["Near bias","Good things sooner, bad things later"],["Future bias","Good things future, bad things past"],["Non arbitrariness","Ignore irrelevant differences"]],
+"Week 13":[["Time neutralism","Time biased preferences are impermissible"],["Pain pump","Future bias plus risk aversion"],["Scheduling problem","Future bias plus regret aversion"],["Causal inaccessibility","We can't change the past, so care less"],["Passage hypothesis","Time really flows, so the past is done"],["Tiebreaker","Preference only between equal options"],["Preference reflection","Prefer now what you'll later prefer"]]
+};
+const LEVELS=[[0,"Sophist"],[100,"Student of Socrates"],[300,"Academic"],[600,"Peripatetic"],[1000,"Stoic"],[1600,"Sceptic Sage"],[2500,"Philosopher King"]];
+function levelOf(x){ let i=0; LEVELS.forEach((l,k)=>{ if(x>=l[0]) i=k; }); return i; }
+function addXP(n){
+  const before=levelOf(S.xp||0); S.xp=(S.xp||0)+n; save(); renderXP();
+  const after=levelOf(S.xp);
+  if(after>before){ laurels(40); if(window.hamSay) hamSay("Level up! You are now a "+LEVELS[after][1]+" 🍭",3600); }
+}
+function renderXP(){
+  const el=document.getElementById("xp"); if(!el) return;
+  const x=S.xp||0, i=levelOf(x), cur=LEVELS[i][0], nxt=LEVELS[i+1]?LEVELS[i+1][0]:null;
+  const pct=nxt?((x-cur)/(nxt-cur)*100):100;
+  el.innerHTML=`<div class="xp-top"><span class="xp-rank">${LEVELS[i][1]}</span><span class="muted">${x} XP${nxt?` · ${nxt-x} to ${LEVELS[i+1][1]}`:" · max rank"}</span></div><div class="bar"><i style="width:${pct}%;background:var(--accent)"></i></div>`;
+}
+function laurels(n){
+  if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const box=document.createElement("div"); box.className="laurels";
+  const bits=["🌿","🍃","✨","🌿","🍋"];
+  for(let i=0;i<n;i++){ const s=document.createElement("span"); s.textContent=bits[i%bits.length];
+    s.style.left=Math.random()*100+"vw"; s.style.animationDelay=(Math.random()*.6)+"s"; s.style.fontSize=(14+Math.random()*14)+"px";
+    s.style.setProperty("--dx",(Math.random()*120-60)+"px"); box.appendChild(s); }
+  document.body.appendChild(box); setTimeout(()=>box.remove(),3200);
+}
+function wstyle(w){ return `--wc:${WCOL[w]}`; }
+
+/* ---------- match game ---------- */
+const mt={sel:new Set(Object.keys(DECK)), pairs:[], pick:null, done:0, miss:0, t0:0, tick:null};
+function startMatch(){
+  let pool=[]; mt.sel.forEach(w=>MATCH[w].forEach(p=>pool.push([w,p[0],p[1]])));
+  mt.pairs=shuffle(pool).slice(0,6); mt.pick=null; mt.done=0; mt.miss=0; mt.t0=Date.now();
+  clearInterval(mt.tick); mt.tick=setInterval(()=>{ const t=document.getElementById("mtime"); if(!t){clearInterval(mt.tick);return;} t.textContent=((Date.now()-mt.t0)/1000).toFixed(1)+"s"; },100);
+  renderMatch(true);
+}
+function renderMatch(playing){
+  const el=document.getElementById("v-match"); el.innerHTML="";
+  const p=document.createElement("div"); p.className="panel";
+  if(!playing){
+    p.innerHTML='<div class="label">Choose weeks</div>';
+    p.appendChild(weekChips(mt.sel,()=>renderMatch(false)));
+    const info=document.createElement("p"); info.className="muted"; info.textContent="Match 6 terms to their meanings as fast as you can. Wrong matches add 3 seconds.";
+    const go=document.createElement("button"); go.className="btn"; go.textContent="Start matching"; go.disabled=!mt.sel.size; go.onclick=startMatch;
+    const best=document.createElement("p"); best.className="muted"; best.style.marginTop="10px"; best.textContent=S.matchBest?("Best time: "+S.matchBest.toFixed(1)+"s"):"No best time yet.";
+    p.append(info,go,best); el.appendChild(p); return;
+  }
+  p.innerHTML='<div class="row" style="justify-content:space-between"><span class="label">Tap a term, then its meaning</span><span class="timer" id="mtime">0.0s</span></div>';
+  const grid=document.createElement("div"); grid.className="mgrid";
+  const L=document.createElement("div"), R=document.createElement("div"); L.className=R.className="mcol";
+  shuffle(mt.pairs.map((x,i)=>i)).forEach(i=>{ const b=document.createElement("button"); b.className="mt term"; b.style.cssText=wstyle(mt.pairs[i][0]); b.dataset.i=i; b.innerHTML=`<small>${mt.pairs[i][0]}</small>${esc(mt.pairs[i][1])}`; L.appendChild(b); });
+  shuffle(mt.pairs.map((x,i)=>i)).forEach(i=>{ const b=document.createElement("button"); b.className="mt def"; b.dataset.i=i; b.textContent=mt.pairs[i][2]; R.appendChild(b); });
+  grid.append(L,R); p.appendChild(grid);
+  grid.addEventListener("click",e=>{
+    const b=e.target.closest(".mt"); if(!b||b.classList.contains("ok")) return;
+    if(b.classList.contains("term")){ grid.querySelectorAll(".term").forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); mt.pick=b; return; }
+    if(!mt.pick) { b.classList.add("shake"); setTimeout(()=>b.classList.remove("shake"),400); return; }
+    if(b.dataset.i===mt.pick.dataset.i){
+      const w=mt.pairs[+b.dataset.i][0]; [b,mt.pick].forEach(x=>{x.classList.remove("sel"); x.classList.add("ok"); x.style.cssText=wstyle(w);});
+      mt.pick=null; mt.done++; if(window.hamReact) hamReact(true);
+      if(mt.done===mt.pairs.length){
+        clearInterval(mt.tick); const secs=(Date.now()-mt.t0)/1000+mt.miss*3; const isBest=!S.matchBest||secs<S.matchBest; if(isBest) S.matchBest=secs; save();
+        addXP(25); laurels(isBest?40:18);
+        const f=document.createElement("div"); f.style.marginTop="16px";
+        f.innerHTML=`<div class="score">${secs.toFixed(1)}s</div><p class="muted">${mt.miss} wrong ${mt.miss===1?"match":"matches"}${isBest?" · New best time!":""}</p>`;
+        const a=document.createElement("button"); a.className="btn"; a.textContent="Play again"; a.onclick=startMatch;
+        const c=document.createElement("button"); c.className="btn ghost"; c.textContent="Change weeks"; c.style.marginLeft="8px"; c.onclick=()=>renderMatch(false);
+        f.append(a,c); p.appendChild(f);
+      }
+    } else { mt.miss++; b.classList.add("shake","bad"); mt.pick.classList.add("shake"); const pk=mt.pick; setTimeout(()=>{b.classList.remove("shake","bad"); pk.classList.remove("shake");},450); if(window.hamReact) hamReact(false); }
+  });
+  el.appendChild(p);
+}
+
+const WEEKS = Object.keys(DECK);
+const id = (w,i) => w+"#"+i;
+function boxOf(w,i){ return S.box[id(w,i)]||0; } // 0 new, 1 learning, 2 almost, 3 mastered
+function esc(s){ return s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+/* ---------- nav ---------- */
+const views = ["cards","quiz","match","essay","progress"];
+function show(v){
+  views.forEach(x=>document.getElementById("v-"+x).classList.toggle("hide",x!==v));
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  if(v==="progress") renderProgress();
+  if(v==="quiz" && (!qz.items.length || qz.n>=qz.items.length)) renderQuiz();
+  if(v==="cards") renderCards();
+  if(v==="match" && !document.querySelector("#v-match .mgrid")) renderMatch(false);
+  if(v==="essay" && !essayState.active) renderEssayList();
+}
+document.getElementById("nav").addEventListener("click",e=>{ if(e.target.dataset.v) show(e.target.dataset.v); });
+
+function weekChips(sel, onChange){
+  const wrap = document.createElement("div"); wrap.className="chips";
+  const all = document.createElement("button"); all.className="chip"+(sel.size===WEEKS.length?" on":""); all.textContent="All weeks";
+  all.onclick=()=>{ if(sel.size===WEEKS.length){sel.clear();} else {WEEKS.forEach(w=>sel.add(w));} onChange(); };
+  wrap.appendChild(all);
+  WEEKS.forEach(w=>{ const b=document.createElement("button"); b.className="chip wk"+(sel.has(w)&&sel.size!==WEEKS.length?" on":""); b.style.cssText=wstyle(w); b.textContent=w; b.title=WTOP[w];
+    b.onclick=()=>{ if(sel.size===WEEKS.length){sel.clear();sel.add(w);} else if(sel.has(w)) sel.delete(w); else sel.add(w); onChange(); }; wrap.appendChild(b); });
+  return wrap;
+}
+
+/* ---------- flashcards (Leitner) ---------- */
+const fc = {sel:new Set(WEEKS), queue:[], cur:null, done:0, flipped:false};
+function buildQueue(){
+  const items=[];
+  fc.sel.forEach(w=>DECK[w].forEach((c,i)=>items.push([w,i])));
+  // weaker cards appear more; mastered cards appear once in a while
+  let q=[];
+  items.forEach(([w,i])=>{ const b=boxOf(w,i); const n = b===3?0:(b===2?1:2); for(let k=0;k<n;k++) q.push([w,i]); if(b===3 && Math.random()<0.25) q.push([w,i]); });
+  if(!q.length) q = items.slice();
+  // dedupe adjacent
+  q = shuffle(q); fc.queue=[]; const seen=new Set();
+  q.forEach(x=>{ const k=id(x[0],x[1]); if(!seen.has(k)){seen.add(k); fc.queue.push(x);} });
+  fc.done=0; fc.flipped=false; fc.cur=fc.queue.shift()||null;
+}
+function renderCards(){
+  const el=document.getElementById("v-cards"); el.innerHTML="";
+  const p=document.createElement("div"); p.className="panel";
+  p.innerHTML='<div class="label">Choose weeks</div>';
+  p.appendChild(weekChips(fc.sel,()=>{buildQueue();renderCards();}));
+  const total = [...fc.sel].reduce((a,w)=>a+DECK[w].length,0);
+  const mastered = [...fc.sel].reduce((a,w)=>a+DECK[w].filter((c,i)=>boxOf(w,i)===3).length,0);
+  const bar=document.createElement("div");
+  bar.innerHTML=`<div class="row" style="justify-content:space-between"><span class="muted">${mastered} of ${total} cards mastered ${fc.streak?`<span class="streak">🔥 ${fc.streak} streak</span>`:""}</span><span class="muted">${fc.queue.length+(fc.cur?1:0)} left this round</span></div><div class="bar" style="margin-top:6px"><i style="width:${total?mastered/total*100:0}%"></i></div>`;
+  p.appendChild(bar);
+  if(!fc.cur){
+    const d=document.createElement("div"); d.style.marginTop="18px";
+    d.innerHTML = fc.sel.size? '<p class="qtext">Round complete.</p><p class="muted">Cards you missed will come back more often next round.</p>' : '<p class="muted">Pick at least one week.</p>';
+    if(fc.sel.size){ const b=document.createElement("button"); b.className="btn"; b.textContent="Start another round"; b.onclick=()=>{buildQueue();renderCards();}; d.appendChild(b); }
+    p.appendChild(d); el.appendChild(p); return;
+  }
+  const [w,i]=fc.cur; const [q,a]=DECK[w][i]; const b=boxOf(w,i);
+  const lvl=["New","Learning","Almost","Mastered"][b];
+  const card=document.createElement("div"); card.className="card"+(fc.flipped?" flip":"");
+  card.style.cssText=wstyle(w);
+  card.innerHTML=`<div class="card-in"><div class="face front"><span class="sym">${WSYM[w]}</span><span class="tag">${w} · ${WTOP[w]} · ${lvl}</span><div class="q">${esc(q)}</div><span class="hint">Tap or press space to flip</span></div><div class="face back"><span class="sym">${WSYM[w]}</span><span class="tag">${w} · ${WTOP[w]}</span><div class="a">${esc(a)}</div></div></div>`;
+  card.onclick=()=>{fc.flipped=!fc.flipped; card.classList.toggle("flip",fc.flipped); actions.classList.toggle("hide",!fc.flipped); prompt.classList.toggle("hide",fc.flipped);};
+  p.appendChild(card);
+  const prompt=document.createElement("p"); prompt.className="muted"+(fc.flipped?" hide":""); prompt.textContent="Say your answer out loud first, then flip.";
+  p.appendChild(prompt);
+  const actions=document.createElement("div"); actions.className="row"+(fc.flipped?"":" hide");
+  const again=document.createElement("button"); again.className="btn bad"; again.textContent="Missed it";
+  const close=document.createElement("button"); close.className="btn ghost"; close.textContent="Partly";
+  const got=document.createElement("button"); got.className="btn good"; got.textContent="Got it";
+  again.onclick=()=>grade(0); close.onclick=()=>grade(1); got.onclick=()=>grade(2);
+  actions.append(again,close,got); p.appendChild(actions);
+  const k=document.createElement("div"); k.className="kbd"; k.textContent="Keys: space flip · 1 missed · 2 partly · 3 got it"; p.appendChild(k);
+  el.appendChild(p);
+}
+function grade(g){
+  const [w,i]=fc.cur; const k=id(w,i); let b=S.box[k]||0;
+  if(g===0){ b=1; fc.queue.splice(Math.min(3,fc.queue.length),0,[w,i]); }
+  else if(g===1){ b=Math.max(1,Math.min(2,b)); fc.queue.splice(Math.min(8,fc.queue.length),0,[w,i]); }
+  else { b=Math.min(3,b+1); }
+  S.box[k]=b; save(); if(window.hamReact) hamReact(g!==0); addXP(g===2?10:g===1?5:1); fc.streak=g===2?(fc.streak||0)+1:0; if(fc.streak&&fc.streak%10===0) laurels(24); fc.done++; fc.flipped=false; fc.cur=fc.queue.shift()||null; renderCards();
+}
+document.addEventListener("keydown",e=>{
+  if(document.getElementById("v-cards").classList.contains("hide")||!fc.cur) return;
+  if(e.target.tagName==="TEXTAREA") return;
+  if(e.code==="Space"){ e.preventDefault(); document.querySelector("#v-cards .card")?.click(); }
+  if(fc.flipped){ if(e.key==="1")grade(0); if(e.key==="2")grade(1); if(e.key==="3")grade(2); }
+});
+
+/* ---------- quiz ---------- */
+const qz = {sel:new Set(WEEKS), items:[], n:0, score:0, answered:false, len:10};
+function startQuiz(){
+  const pool=QUIZ.filter(x=>qz.sel.has(x[0]));
+  qz.items=shuffle(pool).slice(0,Math.min(qz.len,pool.length)).map(x=>({w:x[0],q:x[1],a:x[2],opts:shuffle(x.slice(2))}));
+  qz.n=0; qz.score=0; qz.answered=false; qz.celebrated=false; renderQuiz();
+}
+function renderQuiz(){
+  const el=document.getElementById("v-quiz"); el.innerHTML="";
+  const p=document.createElement("div"); p.className="panel";
+  if(!qz.items.length){
+    p.innerHTML='<div class="label">Choose weeks</div>';
+    p.appendChild(weekChips(qz.sel,renderQuiz));
+    const r=document.createElement("div"); r.className="row";
+    r.innerHTML='<span class="muted">Questions:</span>';
+    [10,20,30].forEach(n=>{const b=document.createElement("button"); b.className="chip"+(qz.len===n?" on":""); b.textContent=n; b.onclick=()=>{qz.len=n;renderQuiz();}; r.appendChild(b);});
+    p.appendChild(r);
+    const go=document.createElement("button"); go.className="btn"; go.style.marginTop="16px"; go.textContent="Start quiz"; go.disabled=!qz.sel.size; go.onclick=startQuiz; p.appendChild(go);
+    const best=document.createElement("p"); best.className="muted"; best.style.marginTop="12px";
+    const hist=WEEKS.filter(w=>S.quiz[w]).map(w=>`${w}: ${S.quiz[w].c}/${S.quiz[w].t} correct overall`);
+    best.textContent=(hist.length?hist.join(" · ")+" · ":"")+QUIZ.length+" questions in the bank, each with plausible wrong answers.";
+    p.appendChild(best); el.appendChild(p); return;
+  }
+  if(qz.n>=qz.items.length){
+    const pct=Math.round(qz.score/qz.items.length*100); if(!qz.celebrated){ qz.celebrated=true; if(pct>=80) laurels(36); }
+    p.innerHTML=`<div class="label">Finished</div><div class="score">${qz.score} / ${qz.items.length}</div><p class="muted">${pct>=80?"Strong. Try an essay drill next.":pct>=50?"Getting there. Run flashcards on the weeks you missed.":"Worth another flashcard round before trying again."}</p>`;
+    const r=document.createElement("div"); r.className="row";
+    const a=document.createElement("button"); a.className="btn"; a.textContent="Same weeks again"; a.onclick=startQuiz;
+    const b=document.createElement("button"); b.className="btn ghost"; b.textContent="Change weeks"; b.onclick=()=>{qz.items=[];renderQuiz();};
+    r.append(a,b); p.appendChild(r); el.appendChild(p); return;
+  }
+  const it=qz.items[qz.n]; p.classList.add("qpanel"); p.style.cssText=wstyle(it.w);
+  p.innerHTML=`<div class="row" style="justify-content:space-between"><span class="label"><span class="qtag">${it.w} · ${WTOP[it.w]}</span> · Question ${qz.n+1} of ${qz.items.length}</span><span class="muted">Score ${qz.score}</span></div><div class="bar" style="margin-top:8px"><i style="width:${qz.n/qz.items.length*100}%;background:var(--accent)"></i></div><p class="qtext">${esc(it.q)}</p>`;
+  const opts=document.createElement("div"); opts.className="opts";
+  it.opts.forEach(o=>{ const b=document.createElement("button"); b.className="opt"; b.textContent=o;
+    b.onclick=()=>{ if(qz.answered) return; qz.answered=true; const ok=o===it.a; if(ok) qz.score++;
+      const rec=S.quiz[it.w]||{c:0,t:0}; rec.t++; if(ok) rec.c++; S.quiz[it.w]=rec;
+      save(); if(window.hamReact) hamReact(ok); if(ok) addXP(15);
+      [...opts.children].forEach(x=>{ x.disabled=true; if(x.textContent===it.a) x.classList.add("right"); else if(x===b) x.classList.add("wrong"); });
+      next.classList.remove("hide"); };
+    opts.appendChild(b); });
+  p.appendChild(opts);
+  const next=document.createElement("button"); next.className="btn hide"; next.textContent=qz.n+1<qz.items.length?"Next":"See score";
+  next.onclick=()=>{qz.n++; qz.answered=false; renderQuiz();};
+  p.appendChild(next); el.appendChild(p);
+}
+
+/* ---------- essay drill ---------- */
+const essayState={active:null, t:0, timer:null, mins:12};
+function renderEssayList(){
+  clearInterval(essayState.timer); essayState.active=null;
+  const el=document.getElementById("v-essay"); el.innerHTML="";
+  const p=document.createElement("div"); p.className="panel";
+  p.innerHTML='<div class="label">Brigitte\'s practice questions</div><p class="muted" style="margin:6px 0 0">The exam is four short essays. Plan an answer against the clock, write the plan, then compare it with the model outline. Thesis first, then exposition, argument, objection, reply, conclusion.</p>';
+  const r=document.createElement("div"); r.className="row"; r.style.marginTop="12px";
+  r.innerHTML='<span class="muted">Timer:</span>';
+  [5,12,30].forEach(n=>{const b=document.createElement("button"); b.className="chip"+(essayState.mins===n?" on":""); b.textContent=n+" min"+(n===5?" plan":n===12?" outline":" full answer"); b.onclick=()=>{essayState.mins=n;renderEssayList();}; r.appendChild(b);});
+  p.appendChild(r);
+  const list=document.createElement("div"); list.className="esq";
+  ESSAYS.forEach((e,i)=>{ const b=document.createElement("button"); b.className="opt"; b.innerHTML=`<span class="label">Q${i+1} · ${e.w}</span><br>${esc(e.q)}`; b.onclick=()=>startEssay(i); list.appendChild(b); });
+  const rnd=document.createElement("button"); rnd.className="btn"; rnd.style.marginTop="14px"; rnd.textContent="Random question"; rnd.onclick=()=>startEssay(Math.floor(Math.random()*ESSAYS.length));
+  p.append(list,rnd); el.appendChild(p);
+}
+function fmt(s){ const m=Math.floor(s/60), x=s%60; return m+":"+String(x).padStart(2,"0"); }
+function startEssay(i){
+  const e=ESSAYS[i]; essayState.active=i; essayState.t=essayState.mins*60;
+  const el=document.getElementById("v-essay"); el.innerHTML="";
+  const p=document.createElement("div"); p.className="panel";
+  let draft=""; try{ draft=localStorage.getItem(KEY+"-draft-"+i)||""; }catch(err){}
+  p.innerHTML=`<div class="row" style="justify-content:space-between"><span class="label">Q${i+1} · ${e.w}</span><span class="timer" id="tm">${fmt(essayState.t)}</span></div><p class="qtext">${esc(e.q)}</p><p class="muted">Write your thesis, the views you'll use, your objection and reply.</p>`;
+  const ta=document.createElement("textarea"); ta.value=draft; ta.placeholder="Thesis:\n1.\n2.\nObjection:\nReply:\nConclusion:";
+  ta.oninput=()=>{ try{ localStorage.setItem(KEY+"-draft-"+i, ta.value); }catch(err){} };
+  p.appendChild(ta);
+  const r=document.createElement("div"); r.className="row"; r.style.marginTop="12px";
+  const rev=document.createElement("button"); rev.className="btn"; rev.textContent="Reveal model outline";
+  const back=document.createElement("button"); back.className="btn ghost"; back.textContent="All questions"; back.onclick=renderEssayList;
+  r.append(rev,back); p.appendChild(r);
+  const out=document.createElement("div"); out.className="hide"; out.style.marginTop="16px";
+  out.innerHTML='<div class="label">Model outline · tick what your plan covered</div>'+e.o.map((x,k)=>`<label class="check"><input type="checkbox" data-k="${k}"> <span>${esc(x)}</span></label>`).join("")+'<p class="muted" id="cov" style="margin-top:8px"></p>';
+  out.addEventListener("change",()=>{ const c=out.querySelectorAll("input:checked").length; out.querySelector("#cov").textContent=`You covered ${c} of ${e.o.length} points.`+(c===e.o.length?" Excellent.":""); if(c===e.o.length&&!out.dataset.c){out.dataset.c=1; laurels(30);} });
+  rev.onclick=()=>{ out.classList.remove("hide"); rev.disabled=true; clearInterval(essayState.timer); addXP(40); };
+  p.appendChild(out); el.appendChild(p);
+  clearInterval(essayState.timer);
+  essayState.timer=setInterval(()=>{ essayState.t--; const tm=document.getElementById("tm"); if(!tm){clearInterval(essayState.timer);return;}
+    tm.textContent=fmt(Math.max(0,essayState.t)); tm.classList.toggle("low",essayState.t<=60);
+    if(essayState.t<=0){ clearInterval(essayState.timer); tm.textContent="Time"; } },1000);
+}
+
+/* ---------- progress ---------- */
+function renderProgress(){
+  const el=document.getElementById("v-progress"); el.innerHTML="";
+  const p=document.createElement("div"); p.className="panel";
+  p.innerHTML='<div class="label">Your progress</div><p class="muted" style="margin:6px 0 0">Saved in this browser only. A card counts as mastered after you get it right three times.</p>';
+  const g=document.createElement("div"); g.className="stats";
+  WEEKS.forEach(w=>{ const n=DECK[w].length; const m=DECK[w].filter((c,i)=>boxOf(w,i)===3).length; const seen=DECK[w].filter((c,i)=>boxOf(w,i)>0).length; const qr=S.quiz[w];
+    const d=document.createElement("div"); d.className="stat"; d.style.cssText=wstyle(w);
+    d.innerHTML=`<b>${WSYM[w]} ${w}</b> <small>${WTOP[w]}</small><div class="bar" style="margin:8px 0 6px"><i style="width:${m/n*100}%"></i></div><small>${m}/${n} mastered · ${seen} seen${qr?` · quiz ${Math.round(qr.c/qr.t*100)}%`:""}</small>`;
+    d.style.cursor="pointer"; d.onclick=()=>{ fc.sel=new Set([w]); buildQueue(); renderCards(); show("cards"); };
+    g.appendChild(d); });
+  p.appendChild(g);
+  const r=document.createElement("div"); r.className="row"; r.style.marginTop="16px";
+  const reset=document.createElement("button"); reset.className="btn ghost"; reset.textContent="Reset progress";
+  let armed=false;
+  reset.onclick=()=>{ if(!armed){armed=true; reset.textContent="Tap again to confirm"; return;} S={box:{},quiz:{},xp:0}; save(); renderXP(); buildQueue(); renderProgress(); };
+  r.appendChild(reset); p.appendChild(r);
+  el.appendChild(p);
+}
+
+renderXP(); buildQueue(); renderCards(); renderQuiz();
+</script>
+<div id="ham" aria-live="polite"><div class="bubble" id="hamSay"></div><img id="hamImg" alt="Lollipop hamster, tap me" title="Tap me" src="data:image/png;base64,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"></div>
+<script>
+(function(){
+  const img=document.getElementById("hamImg"), say=document.getElementById("hamSay");
+  let streak=0, taps=0, hideT;
+  const TAP=[
+    "Thesis first. Always answer the actual question.",
+    "Every essay needs an objection AND a reply.",
+    "Knowledge is like promising. Belief is like intending. (Austin)",
+    "Accidentally justified true belief isn't knowledge. (Gettier)",
+    "Let us not pretend to doubt in philosophy what we do not doubt in our hearts.",
+    "Identity is transitive. Two of you can't both be you.",
+    "Connectedness comes in degrees. Continuity doesn't.",
+    "True beliefs run away unless you tie them down. Like me with this lollipop.",
+    "The banality is in the doer, not the deed.",
+    "Default entitlements: non arbitrary, but not self justifying.",
+    "Four short essays. Use both sections.",
+    "Squeak. You've got this."
+  ];
+  const GOOD=["Yes!","Nailed it.","Daedalus would be proud.","Fastened by a chain!","Big brain energy.","Socrates approves."];
+  const BAD=["Next time!","That one's coming back.","Even Descartes doubted.","Fallibilism, baby.","Neurath's boat: patch and sail on."];
+  function play(cls){ img.classList.remove("hop","spin","shake"); void img.offsetWidth; img.classList.add(cls); }
+  function speak(t,ms){ clearTimeout(hideT); say.innerHTML=t; say.classList.add("show"); hideT=setTimeout(()=>say.classList.remove("show"),ms||3200); }
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  img.addEventListener("click",()=>{ taps++;
+    if(taps%10===0){ play("spin"); speak("That's "+taps+" boops. Shouldn't you be studying? 🍭"); }
+    else { play("hop"); speak(pick(TAP)); } });
+  window.hamSay=speak;
+  window.hamReact=function(ok){
+    if(ok){ streak++; play(streak%5===0?"spin":"hop"); if(streak%5===0) speak(streak+" in a row! 🍭<span class=\"count\">Streak</span>",2600); else if(Math.random()<.35) speak(pick(GOOD),1600); }
+    else { streak=0; play("shake"); if(Math.random()<.5) speak(pick(BAD),1800); }
+  };
+  setTimeout(()=>speak("Hi Amorino! Tap me for tips."),900);
+})();
+</script>
+</body>
+</html>
