@@ -191,6 +191,15 @@ ul.who li{margin:6px 0;padding-left:10px;border-left:3px solid var(--wc)}
 .hit{font-size:14px;padding:6px 0;border-bottom:1px dashed var(--line)}
 .hit mark{background:color-mix(in srgb,var(--accent) 55%,transparent);color:inherit;border-radius:3px;padding:0 2px}
 .hitsec .btn{margin-top:8px}
+
+.card.tk .card-in{min-height:260px}
+.tkname{font-family:Fraunces,Georgia,serif;font-size:24px;font-weight:700;margin-bottom:6px}
+.tkname.big{font-size:34px}
+.card.tk .face{overflow:auto}
+ul.tklist{margin:6px 0 0;padding-left:18px;font-size:14px;line-height:1.45}
+ul.tklist li{margin:4px 0}
+.tkopts{grid-template-columns:1fr 1fr}
+@media (max-width:720px){.tkopts{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -202,6 +211,7 @@ ul.who li{margin:6px 0;padding-left:10px;border-left:3px solid var(--wc)}
 <nav id="nav">
   <button data-v="summary" class="on">Summaries</button>
   <button data-v="notes">Notes</button>
+  <button data-v="thinkers">Thinkers</button>
   <button data-v="cards">Flashcards</button>
   <button data-v="quiz">Quiz</button>
   <button data-v="match">Match</button>
@@ -211,6 +221,7 @@ ul.who li{margin:6px 0;padding-left:10px;border-left:3px solid var(--wc)}
 <main>
   <section id="v-summary"></section>
   <section id="v-notes" class="hide"></section>
+  <section id="v-thinkers" class="hide"></section>
   <section id="v-cards" class="hide"></section>
   <section id="v-quiz" class="hide"></section>
   <section id="v-match" class="hide"></section>
@@ -660,7 +671,7 @@ function esc(s){ return s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&g
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
 
 /* ---------- nav ---------- */
-const views = ["summary","notes","cards","quiz","match","essay","progress"];
+const views = ["summary","notes","thinkers","cards","quiz","match","essay","progress"];
 function show(v){
   views.forEach(x=>document.getElementById("v-"+x).classList.toggle("hide",x!==v));
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
@@ -671,6 +682,7 @@ function show(v){
   if(v==="essay" && essayState.active===null) renderEssayList();
   if(v==="summary") renderSummary();
   if(v==="notes") renderNotes();
+  if(v==="thinkers"){ if(tk.cur===null&&tk.mode!=="quiz") tkBuild(); renderThinkers(); }
 }
 document.getElementById("nav").addEventListener("click",e=>{ if(e.target.dataset.v) show(e.target.dataset.v); });
 
@@ -1038,6 +1050,145 @@ function renderNotes(){
   const next=document.createElement("button"); next.className="btn ghost"; next.textContent=(nt.i<WEEKS.length-1?WEEKS[nt.i+1]:"")+" →"; next.disabled=nt.i===WEEKS.length-1; next.onclick=()=>{nt.i++;renderNotes();window.scrollTo(0,0);};
   nav.append(prev,sumb,next); p.appendChild(nav);
   el.appendChild(p);
+}
+
+const TK=[
+["Week 5","Arendt","claim","The banality of evil: enormous evil done by a shallow, thoughtless doer","Eichmann in Jerusalem (1963)"],
+["Week 5","Arendt","claim","Thoughtlessness: being unable to think from another's standpoint, shielded by cliché","Her specific charge against Eichmann"],
+["Week 5","Arendt","case","Eichmann's last words: funeral clichés at his own hanging","\"He forgot that this was his own funeral\" (252)"],
+["Week 5","Arendt","claim","We must learn to judge differently, not less","Ordinary intentions don't reduce responsibility"],
+["Week 5","Israeli court","case","Responsibility increases the further you are from the person who uses the fatal instrument","Judgment quoted by Arendt (247)"],
+["Week 5","Neiman","claim","After the Lisbon earthquake, evil was confined to human intentions","Before 1755 it made sense to call earthquakes evils"],
+["Week 5","Plato","case","The road to Larissa: true opinion guides as well as knowledge","Meno 97a to 98a"],
+["Week 5","Plato","case","The statues of Daedalus: true beliefs run away unless tied down","Meno: fastened by a reasoned understanding of causes"],
+["Week 5","Plato","case","The clay analogy: listing kinds of knowledge doesn't say what knowledge is","Theaetetus"],
+["Week 5","Plato","claim","Knowledge is true opinion combined with a rational account (logos)","Theaetetus 201c to 202c; the origin of JTB"],
+["Week 6","Gettier","case","Smith, Jones and the ten coins in the pocket","Is Justified True Belief Knowledge? (1963)"],
+["Week 6","Gettier","case","Jones owns a Ford, or Brown is in Barcelona","Justified true disjunction, true by luck"],
+["Week 6","Gettier","claim","Justified true belief is not sufficient for knowledge","Relies on justified false belief and closure"],
+["Week 6","Goodman","claim","Reflective equilibrium: adjust definitions and cases against each other","Fact, Fiction and Forecast (1955)"],
+["Week 6","Ayer","claim","Knowledge = p is true, S is sure of p, S has the right to be sure","Cited by Gettier; refuted by Radford's Jean"],
+["Week 6","Radford","case","The man who knows he locked his car but goes back to check","Knowing without being sure"],
+["Week 6","Radford","case","Miss Tercy, the anxious librarian with a memory like an elephant","Others can credit you with knowledge you wouldn't claim"],
+["Week 6","Radford","case","Jean's English history quiz: Elizabeth died 1603, James I 1625","Knowledge without certainty, without KK, without belief"],
+["Week 6","Radford","claim","Knowledge does not require belief","Knowledge: By Examples (1966)"],
+["Week 6","Clifford","claim","You ought always to have good evidence for your beliefs","The Ethics of Belief; leads to a regress"],
+["Week 7","Austin","claim","Knowing is like promising; believing is like intending","Other Minds (1946)"],
+["Week 7","Austin","claim","Saying \"I know\" takes a new plunge: I give others my word","Not a superior feat of cognition"],
+["Week 7","Austin","claim","Being sure is the top of the belief scale, not knowledge","\"Not in the same line of business\""],
+["Week 7","Austin","claim","Good machines don't (often) break down","Our faculties are fallible but not inveterately so"],
+["Week 7","Austin","case","The pig coming into view settles the question","Knowledge isn't evidence piled high enough"],
+["Week 7","Austin","claim","We are entitled to trust others unless there's concrete reason not to","Testimony is a main point of talking"],
+["Week 7","Miranda Fricker","claim","Testimonial injustice: credibility denied because of social group","Only makes sense if knowledge is a social status"],
+["Week 7","Craig","claim","The concept of knowledge is used to flag approved informants","The Practical Explication of Knowledge"],
+["Week 7","Craig","case","Mudweiser, the true lie (the twin) and the double bluff","Unreliable sources an inquirer wants to avoid"],
+["Week 7","Craig","case","Jesse James's mask slips and a bystander sees his face","Counterexample to Nozick's tracking"],
+["Week 7","Craig","case","\"If you want to know the way, ask a policeman\"","A detectable indicator of reliability"],
+["Week 7","Nozick","claim","Tracking: if p were false S wouldn't believe it; if true S would","Four condition analysis of knowledge"],
+["Week 7","Nozick","claim","I can know I have hands without knowing I'm not a brain in a vat","Denies closure of knowledge"],
+["Week 8","Pyrrho","claim","Suspend belief through equipollence to reach tranquillity (ataraxia)","Pyrrhonian scepticism as a way of life"],
+["Week 8","Pyrrho","case","Needed minders to stop him walking off cliffs","The unlivability objection"],
+["Week 8","Sextus Empiricus","claim","Our main source for Pyrrhonian scepticism","160 to 210 AD"],
+["Week 8","Agrippa","claim","Every justification ends in regress, circle or ad hoc assumption","The trilemma; three of the Five Modes"],
+["Week 8","Barnes","claim","The trilemma rests only on three utterly humdrum ideas","Pyrrhonism is an enemy to common sense"],
+["Week 8","Descartes","claim","Knowledge proper (scientia) must be absolutely certain","Meditations (1641)"],
+["Week 8","Descartes","case","The dream argument and the malicious demon","Global doubt about the external world"],
+["Week 8","Descartes","claim","I think, therefore I am","The cogito: first person, present tense, mental"],
+["Week 8","Descartes","case","The wax by the fire changes every sensory quality","Known by the mind alone"],
+["Week 8","Descartes","case","Hats and coats that could conceal automatons","Other minds scepticism"],
+["Week 8","Descartes","claim","Called ancient scepticism \"stale cabbage\"","Doubt as method, not doctrine"],
+["Week 8","Russell","case","The world could have sprung into being five minutes ago","Memory scepticism"],
+["Week 9","Peirce","claim","Belief is a habit of action; doubt is an irritation that drives inquiry","The Fixation of Belief (1877)"],
+["Week 9","Peirce","claim","Four methods: tenacity, authority, a priori, science","Only science fits a mind independent reality"],
+["Week 9","Peirce","case","The ostrich burying its head in the sand","The method of tenacity"],
+["Week 9","Peirce","claim","\"Let us not pretend to doubt in philosophy what we do not doubt in our hearts\"","Against Cartesian paper doubt"],
+["Week 9","Peirce","claim","Reasoning should be a cable of many fibres, not a chain","Four Incapacities (1868)"],
+["Week 9","Peirce","claim","Truth is the opinion all inquirers are fated to agree on","Convergence theory of truth"],
+["Week 9","Neurath","case","Repairing a boat at sea plank by plank","Revising beliefs while relying on the rest"],
+["Week 9","Perry","case","Gretchen Weirob in hospital debates Sam Miller about the soul","A Dialogue on Personal Identity and Immortality (1978)"],
+["Week 9","Perry","case","The chocolates: you can never bite into a soul","Weirob's correlation argument"],
+["Week 9","Perry","case","The Blue River: similar water, different water","Similar psychology doesn't need the same soul"],
+["Week 10","Lecture","case","The doubled teletransporter, Will Riker and the $500","Identity doesn't ground prudence"],
+["Week 10","Lecture","case","Freddie is tired at t and not tired at t1","The problem of change"],
+["Week 10","Locke","claim","Personal identity consists in psychological continuity (memory)","Psychological criterion, cited by Parfit"],
+["Week 11","Parfit","claim","Identity is not what matters in survival; Relation R is","The Unimportance of Identity"],
+["Week 11","Parfit","case","My Division: each brain half goes into a new body","Neither is me, but nothing that matters is lost"],
+["Week 11","Parfit","case","The triplets in a community where every child needs a twin","What matters is at least one successor"],
+["Week 11","Parfit","case","My head grafted onto my dying twin brother's body","Whether he is \"me\" doesn't matter"],
+["Week 11","Parfit","claim","Some identity questions are empty: all facts known, no answer","The physical spectrum"],
+["Week 11","Johnston","claim","The argument from above: the higher level fact can matter","Reply to Parfit"],
+["Week 11","Kind","claim","Identity theories are relevant to special concern but needn't justify it","Principle (C), Metaphilosophy (2004)"],
+["Week 11","Kind","case","Leibniz's King of China who forgets his past","Bare sameness of soul is a poor basis for concern"],
+["Week 11","Wolf","claim","Theories of personal identity are irrelevant to self interest","Self Interest and Interest in Selves (1986)"],
+["Week 11","Shoemaker","claim","Inconceivable that a creature be indifferent to its present pains","Cited by Kind"],
+["Week 12","Dennett","case","Yorick in a vat in Houston, Hamlet in a mine under Tulsa","Where Am I?"],
+["Week 12","Dennett","case","Hubert, the computer brain, and the master switch","Fission again; the out of sync ending"],
+["Week 12","Parfit","claim","Equal concern fails: we may care less about less connected future selves","Personal Identity and Rationality (1982)"],
+["Week 12","Parfit","case","Future Tuesday Indifference","An arbitrary, irrational preference"],
+["Week 12","Sidgwick","claim","My feelings a year hence should matter as much as next minute's","The Equal Concern Claim"],
+["Week 12","Sullivan","case","Carrie's 45 minute Crossfit workout that never ends","Against future bias"],
+["Week 13","Dougherty","case","The pain pump: help early and help late pills","Future bias plus risk aversion is exploitable"],
+["Week 13","Greene and Sullivan","case","Billy insists on riding the roller coaster second","The scheduling problem (regret aversion)"],
+["Week 13","Hedden","claim","Future biased agents violate preference reflection","Predictable exploitability"],
+["Week 13","Hume","claim","First noticed the past and future asymmetry in our concern","A Treatise of Human Nature"]
+];
+const TNAMES=[...new Set(TK.map(x=>x[1]))];
+const tk={mode:"case",sel:new Set(Object.keys(DECK)),q:[],cur:null,flip:false,qz:null};
+function tkWeekOf(name){ const r=TK.find(x=>x[1]===name); return r?r[0]:"Week 5"; }
+function tkBuild(){
+  if(tk.mode==="case"){ tk.q=shuffle(TK.map((x,i)=>i).filter(i=>tk.sel.has(TK[i][0]))).sort((a,b)=>((S.tk||{})[a]||0)-((S.tk||{})[b]||0)); }
+  else { tk.q=shuffle(TNAMES.filter(n=>TK.some(x=>x[1]===n&&tk.sel.has(x[0])))); }
+  tk.cur=tk.q.shift(); tk.flip=false;
+}
+function tkQuizStart(){
+  const pool=shuffle(TK.map((x,i)=>i).filter(i=>tk.sel.has(TK[i][0]))).slice(0,10);
+  tk.qz={items:pool.map(i=>{ const r=TK[i]; const near=shuffle(TNAMES.filter(n=>n!==r[1]&&Math.abs(WEEKS.indexOf(tkWeekOf(n))-WEEKS.indexOf(r[0]))<=1)); const far=shuffle(TNAMES.filter(n=>n!==r[1]&&!near.includes(n)));
+    return {i,opts:shuffle([r[1],...near.concat(far).slice(0,3)])}; }), n:0, score:0, done:false};
+}
+function renderThinkers(){
+  const el=document.getElementById("v-thinkers"); el.innerHTML="";
+  const p=document.createElement("div"); p.className="panel";
+  p.innerHTML='<div class="label">Who said what</div>';
+  const modes=document.createElement("div"); modes.className="chips";
+  [["case","Case → Who"],["who","Who → Ideas"],["quiz","Who said it?"]].forEach(([m,t])=>{ const b=document.createElement("button"); b.className="chip"+(tk.mode===m?" on":""); b.textContent=t; b.onclick=()=>{tk.mode=m; tk.qz=null; if(m!=="quiz") tkBuild(); renderThinkers();}; modes.appendChild(b); });
+  p.appendChild(modes);
+  p.appendChild(weekChips(tk.sel,()=>{ tk.qz=null; tkBuild(); renderThinkers(); }));
+  el.appendChild(p);
+  const box=document.createElement("div"); box.className="panel"; box.style.marginTop="12px";
+  if(!tk.sel.size){ box.innerHTML='<p class="muted">Pick at least one week.</p>'; el.appendChild(box); return; }
+  if(tk.mode==="quiz"){
+    if(!tk.qz) tkQuizStart();
+    const Z=tk.qz;
+    if(Z.n>=Z.items.length){ const pct=Math.round(Z.score/Z.items.length*100); if(!Z.done){Z.done=true; if(pct>=80) laurels(30);}
+      box.innerHTML=`<div class="label">Finished</div><div class="score">${Z.score} / ${Z.items.length}</div><p class="muted">${pct>=80?"You know your philosophers.":"Run Case → Who on the weeks you missed."}</p>`;
+      const a=document.createElement("button"); a.className="btn"; a.textContent="Another round"; a.onclick=()=>{tk.qz=null; renderThinkers();}; box.appendChild(a); el.appendChild(box); return; }
+    const it=Z.items[Z.n], r=TK[it.i]; box.classList.add("qpanel"); box.style.cssText+=";"+wstyle(r[0]);
+    box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="label"><span class="qtag">${r[0]} · ${r[2]==="case"?"Case":"Claim"}</span> · ${Z.n+1} of ${Z.items.length}</span><span class="muted">Score ${Z.score}</span></div><p class="qtext">${esc(r[3])}</p><p class="muted">Who is this from?</p>`;
+    const opts=document.createElement("div"); opts.className="opts tkopts"; let answered=false;
+    it.opts.forEach(o=>{ const b=document.createElement("button"); b.className="opt"; b.textContent=o; b.onclick=()=>{ if(answered) return; answered=true; const ok=o===r[1]; if(ok){Z.score++; addXP(10);} if(window.hamReact) hamReact(ok);
+      [...opts.children].forEach(x=>{x.disabled=true; if(x.textContent===r[1]) x.classList.add("right"); else if(x===b) x.classList.add("wrong");});
+      const ex=document.createElement("p"); ex.className="muted"; ex.textContent=r[1]+": "+r[4]; box.appendChild(ex); box.appendChild(nx); nx.classList.remove("hide"); }; opts.appendChild(b); });
+    box.appendChild(opts);
+    const nx=document.createElement("button"); nx.className="btn hide"; nx.textContent="Next"; nx.onclick=()=>{Z.n++; renderThinkers();};
+    el.appendChild(box); return;
+  }
+  if(tk.cur===undefined||tk.cur===null){ box.innerHTML='<p class="qtext">Round complete.</p>'; const a=document.createElement("button"); a.className="btn"; a.textContent="Go again"; a.onclick=()=>{tkBuild(); renderThinkers();}; box.appendChild(a); el.appendChild(box); return; }
+  let w,front,back,tag;
+  if(tk.mode==="case"){ const r=TK[tk.cur]; w=r[0]; tag=(r[2]==="case"?"Case":"Claim")+" · who?"; front=`<div class="q">${esc(r[3])}</div>`; back=`<div class="tkname">${esc(r[1])}</div><div class="a">${esc(r[4])}</div>`; }
+  else { const n=tk.cur; w=tkWeekOf(n); const rows=TK.filter(x=>x[1]===n); tag="Name their claims and cases"; front=`<div class="tkname big">${esc(n)}</div><div class="muted">${[...new Set(rows.map(x=>x[0]))].join(", ")}</div>`;
+    back=`<div class="tkname">${esc(n)}</div><ul class="tklist">${rows.map(x=>`<li><b>${x[2]==="case"?"Case":"Claim"}:</b> ${esc(x[3])} <span class="muted">(${esc(x[4])})</span></li>`).join("")}</ul>`; }
+  box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="muted">${tk.q.length+1} left this round</span></div>`;
+  const card=document.createElement("div"); card.className="card tk"+(tk.flip?" flip":""); card.style.cssText=wstyle(w);
+  card.innerHTML=`<div class="card-in"><div class="face front"><span class="sym">${WSYM[w]}</span><span class="tag">${w} · ${tag}</span>${front}<span class="hint">Tap to flip</span></div><div class="face back"><span class="sym">${WSYM[w]}</span><span class="tag">${w}</span>${back}</div></div>`;
+  const act=document.createElement("div"); act.className="row"+(tk.flip?"":" hide");
+  card.onclick=()=>{ tk.flip=!tk.flip; card.classList.toggle("flip",tk.flip); act.classList.toggle("hide",!tk.flip); };
+  box.appendChild(card);
+  const grade=ok=>{ if(tk.mode==="case"){ S.tk=S.tk||{}; S.tk[tk.cur]=ok?Math.min(3,(S.tk[tk.cur]||0)+1):0; save(); if(!ok) tk.q.splice(Math.min(4,tk.q.length),0,tk.cur); } else if(!ok) tk.q.splice(Math.min(4,tk.q.length),0,tk.cur);
+    addXP(ok?8:1); if(window.hamReact) hamReact(ok); tk.cur=tk.q.shift(); tk.flip=false; renderThinkers(); };
+  const no=document.createElement("button"); no.className="btn bad"; no.textContent="Didn't remember"; no.onclick=()=>grade(false);
+  const yes=document.createElement("button"); yes.className="btn good"; yes.textContent="Remembered"; yes.onclick=()=>grade(true);
+  act.append(no,yes); box.appendChild(act);
+  el.appendChild(box);
 }
 
 /* ---------- progress ---------- */
