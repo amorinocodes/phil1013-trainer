@@ -200,6 +200,26 @@ ul.tklist{margin:6px 0 0;padding-left:18px;font-size:14px;line-height:1.45}
 ul.tklist li{margin:4px 0}
 .tkopts{grid-template-columns:1fr 1fr}
 @media (max-width:720px){.tkopts{grid-template-columns:1fr}}
+
+.ankibar{display:flex;gap:8px;justify-content:center;font-size:13px;font-weight:600;margin-bottom:4px}
+.ak{padding:2px 10px;border-radius:99px}
+.ak.new{background:#e8eff3;color:#3f6a86}.ak.lrn{background:#f3e0dc;color:#9a4b40}.ak.done{background:#e3ecdd;color:#4c7046}
+@media (prefers-color-scheme: dark){.ak.new{background:#2b343a;color:#a9c4d6}.ak.lrn{background:#3b2b28;color:#e09d90}.ak.done{background:#2c3529;color:#9dbb93}}
+.showans{display:block;width:100%;padding:13px;font-size:16px}
+.anki{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.abtn{border:1px solid var(--line);border-radius:12px;padding:8px 6px 10px;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--ink);position:relative}
+.abtn small{font-size:11px;color:var(--muted)}
+.abtn b{font-size:15px}
+.abtn .k{position:absolute;top:4px;right:8px;font-size:10px;color:var(--muted)}
+.abtn.again{background:var(--bad-soft);border-color:var(--bad)}
+.abtn.hard{background:#f6ebd9;border-color:#e0b77a}
+.abtn.good{background:var(--good-soft);border-color:var(--good)}
+.abtn.easy{background:#e8eff3;border-color:var(--sky)}
+@media (prefers-color-scheme: dark){.abtn.hard{background:#3a3124}.abtn.easy{background:#2b343a}}
+.card.tk{touch-action:pan-y;transition:transform .18s,opacity .18s}
+.card.fly-l{transform:translateX(-60px) rotate(-4deg);opacity:0}
+.card.fly-r{transform:translateX(60px) rotate(4deg);opacity:0}
+.card.fly-u{transform:translateY(-40px);opacity:0}
 </style>
 </head>
 <body>
@@ -1138,7 +1158,7 @@ function tkWeekOf(name){ const r=TK.find(x=>x[1]===name); return r?r[0]:"Week 5"
 function tkBuild(){
   if(tk.mode==="case"){ tk.q=shuffle(TK.map((x,i)=>i).filter(i=>tk.sel.has(TK[i][0]))).sort((a,b)=>((S.tk||{})[a]||0)-((S.tk||{})[b]||0)); }
   else { tk.q=shuffle(TNAMES.filter(n=>TK.some(x=>x[1]===n&&tk.sel.has(x[0])))); }
-  tk.cur=tk.q.shift(); tk.flip=false;
+  tk.cur=tk.q.shift(); tk.flip=false; tk.done=0;
 }
 function tkQuizStart(){
   const pool=shuffle(TK.map((x,i)=>i).filter(i=>tk.sel.has(TK[i][0]))).slice(0,10);
@@ -1177,19 +1197,48 @@ function renderThinkers(){
   if(tk.mode==="case"){ const r=TK[tk.cur]; w=r[0]; tag=(r[2]==="case"?"Case":"Claim")+" · who?"; front=`<div class="q">${esc(r[3])}</div>`; back=`<div class="tkname">${esc(r[1])}</div><div class="a">${esc(r[4])}</div>`; }
   else { const n=tk.cur; w=tkWeekOf(n); const rows=TK.filter(x=>x[1]===n); tag="Name their claims and cases"; front=`<div class="tkname big">${esc(n)}</div><div class="muted">${[...new Set(rows.map(x=>x[0]))].join(", ")}</div>`;
     back=`<div class="tkname">${esc(n)}</div><ul class="tklist">${rows.map(x=>`<li><b>${x[2]==="case"?"Case":"Claim"}:</b> ${esc(x[3])} <span class="muted">(${esc(x[4])})</span></li>`).join("")}</ul>`; }
-  box.innerHTML=`<div class="row" style="justify-content:space-between"><span class="muted">${tk.q.length+1} left this round</span></div>`;
+  const key=tk.mode==="case"?"c"+tk.cur:"w"+tk.cur; S.tk2=S.tk2||{};
+  const stage=S.tk2[key]||0; tk.done=tk.done||0;
+  const learning=tk.q.filter(x=>(S.tk2[(tk.mode==="case"?"c":"w")+x]||0)>0).length;
+  const fresh=tk.q.length-learning;
+  box.innerHTML=`<div class="ankibar"><span class="ak new">New ${fresh+(stage===0?1:0)}</span><span class="ak lrn">Learning ${learning+(stage>0?1:0)}</span><span class="ak done">Done ${tk.done}</span></div>`;
   const card=document.createElement("div"); card.className="card tk"+(tk.flip?" flip":""); card.style.cssText=wstyle(w);
-  card.innerHTML=`<div class="card-in"><div class="face front"><span class="sym">${WSYM[w]}</span><span class="tag">${w} · ${tag}</span>${front}<span class="hint">Tap to flip</span></div><div class="face back"><span class="sym">${WSYM[w]}</span><span class="tag">${w}</span>${back}</div></div>`;
-  const act=document.createElement("div"); act.className="row"+(tk.flip?"":" hide");
-  card.onclick=()=>{ tk.flip=!tk.flip; card.classList.toggle("flip",tk.flip); act.classList.toggle("hide",!tk.flip); };
-  box.appendChild(card);
-  const grade=ok=>{ if(tk.mode==="case"){ S.tk=S.tk||{}; S.tk[tk.cur]=ok?Math.min(3,(S.tk[tk.cur]||0)+1):0; save(); if(!ok) tk.q.splice(Math.min(4,tk.q.length),0,tk.cur); } else if(!ok) tk.q.splice(Math.min(4,tk.q.length),0,tk.cur);
-    addXP(ok?8:1); if(window.hamReact) hamReact(ok); tk.cur=tk.q.shift(); tk.flip=false; renderThinkers(); };
-  const no=document.createElement("button"); no.className="btn bad"; no.textContent="Didn't remember"; no.onclick=()=>grade(false);
-  const yes=document.createElement("button"); yes.className="btn good"; yes.textContent="Remembered"; yes.onclick=()=>grade(true);
-  act.append(no,yes); box.appendChild(act);
+  card.innerHTML=`<div class="card-in"><div class="face front"><span class="sym">${WSYM[w]}</span><span class="tag">${w} · ${tag}</span>${front}<span class="hint">Space, tap or swipe to flip</span></div><div class="face back"><span class="sym">${WSYM[w]}</span><span class="tag">${w}</span>${back}<span class="hint">← Again · Good →</span></div></div>`;
+  const show=document.createElement("button"); show.className="btn showans"+(tk.flip?" hide":""); show.textContent="Show answer";
+  const act=document.createElement("div"); act.className="anki"+(tk.flip?"":" hide");
+  const flip=()=>{ if(tk.flip) return; tk.flip=true; card.classList.add("flip"); act.classList.remove("hide"); show.classList.add("hide"); };
+  card.onclick=()=>{ if(!tk.flip) flip(); else { tk.flip=false; card.classList.remove("flip"); act.classList.add("hide"); show.classList.remove("hide"); } };
+  show.onclick=flip;
+  let x0=null,y0=null;
+  card.addEventListener("touchstart",e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+  card.addEventListener("touchend",e=>{ if(x0===null) return; const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0; x0=null;
+    if(Math.max(Math.abs(dx),Math.abs(dy))<40) return; e.preventDefault();
+    if(!tk.flip){ flip(); return; } if(Math.abs(dx)>Math.abs(dy)) rate(dx>0?3:1); });
+  const nlen=()=>tk.q.length;
+  function rate(g){
+    let st=S.tk2[key]||0;
+    if(g===1){ st=1; tk.q.splice(Math.min(1,nlen()),0,tk.cur); }
+    else if(g===2){ st=Math.max(1,st); tk.q.splice(Math.min(4,nlen()),0,tk.cur); }
+    else if(g===3){ st=st+1; if(st<2) tk.q.splice(Math.min(9,nlen()),0,tk.cur); else tk.done++; }
+    else { st=3; tk.done++; }
+    S.tk2[key]=Math.min(3,st); if(tk.mode==="case"){ S.tk=S.tk||{}; S.tk[tk.cur]=S.tk2[key]; } save();
+    addXP(g===1?1:g===2?4:g===3?8:10); if(window.hamReact) hamReact(g>=3);
+    card.classList.add(g===1?"fly-l":g===4?"fly-u":"fly-r");
+    setTimeout(()=>{ tk.cur=tk.q.shift(); tk.flip=false; renderThinkers(); },180);
+  }
+  tk.rate=rate; tk.flipNow=flip;
+  const lab=[[1,"Again","< 1 min","again"],[2,"Hard","~2 min","hard"],[3,"Good",(stage>=1?"done":"~5 min"),"good"],[4,"Easy","done","easy"]];
+  lab.forEach(([g,t,s2,c])=>{ const b=document.createElement("button"); b.className="abtn "+c; b.innerHTML=`<small>${s2}</small><b>${t}</b><span class="k">${g}</span>`; b.onclick=()=>rate(g); act.appendChild(b); });
+  box.append(card,show,act);
+  const k=document.createElement("div"); k.className="kbd"; k.textContent="Keys: Space or Enter to flip · 1 Again · 2 Hard · 3 Good · 4 Easy · Swipe left Again, right Good"; box.appendChild(k);
   el.appendChild(box);
 }
+document.addEventListener("keydown",e=>{
+  if(document.getElementById("v-thinkers").classList.contains("hide")||tk.mode==="quiz"||tk.cur==null) return;
+  if(e.target.tagName==="TEXTAREA"||e.target.tagName==="INPUT") return;
+  if((e.code==="Space"||e.key==="Enter")&&!tk.flip){ e.preventDefault(); tk.flipNow&&tk.flipNow(); return; }
+  if(tk.flip&&["1","2","3","4"].includes(e.key)){ e.preventDefault(); tk.rate&&tk.rate(+e.key); }
+});
 
 /* ---------- progress ---------- */
 function renderProgress(){
